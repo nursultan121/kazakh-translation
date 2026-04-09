@@ -1,17 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../i18n/LanguageContext'
 import './ProductList.css'
 
+// ─── Модалка заявки ───────────────────────────────────────────
 function ApplicationModal({ product, onClose }) {
   const [form, setForm] = useState({
     name: '',
     phone: '',
+    username: '',
     comment: '',
   })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [phoneError, setPhoneError] = useState('')
+  const [nameError, setNameError] = useState('')
+
+  // Закрытие по Escape
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const validateName = (name) => {
+    const cleaned = name.trim()
+    return /^[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё\s-]{2,50}$/.test(cleaned)
+  }
 
   const validatePhone = (phone) => {
     const digits = phone.replace(/\D/g, '')
@@ -19,22 +36,29 @@ function ApplicationModal({ product, onClose }) {
   }
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value
-    const filtered = value.replace(/[^\d+()\-\s]/g, '')
-    setForm({ ...form, phone: filtered })
+    const filtered = e.target.value.replace(/[^\d+()\-\s]/g, '')
+    setForm((prev) => ({ ...prev, phone: filtered }))
     setPhoneError('')
+  }
+
+  const handleNameChange = (e) => {
+    setForm((prev) => ({ ...prev, name: e.target.value }))
+    setNameError('')
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
 
+    if (!validateName(form.name)) {
+      setNameError('Введите корректное имя')
+      return
+    }
     if (!validatePhone(form.phone)) {
       setPhoneError('Введите корректный номер телефона')
-      setLoading(false)
       return
     }
 
+    setLoading(true)
     try {
       const response = await fetch('http://localhost:8000/api/applications/', {
         method: 'POST',
@@ -42,18 +66,18 @@ function ApplicationModal({ product, onClose }) {
         body: JSON.stringify({
           name: form.name,
           phone: form.phone,
+          username: form.username,
           comment: form.comment,
           product_name: product.title,
           article: product.article,
+          product_url: window.location.href,
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Ошибка отправки')
-      }
+      if (!response.ok) throw new Error('Ошибка отправки')
 
       setSent(true)
-    } catch (error) {
+    } catch {
       alert('Не удалось отправить заявку. Попробуйте позже.')
     } finally {
       setLoading(false)
@@ -76,6 +100,7 @@ function ApplicationModal({ product, onClose }) {
         {sent ? (
           <div className="modal-success">
             <strong>Заявка отправлена!</strong>
+            <br />
             Менеджер свяжется с вами в ближайшее время.
           </div>
         ) : (
@@ -85,9 +110,10 @@ function ApplicationModal({ product, onClose }) {
               type="text"
               placeholder="Ваше имя"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={handleNameChange}
               required
             />
+            {nameError && <p className="modal-error">{nameError}</p>}
 
             <input
               className="modal-input"
@@ -97,14 +123,25 @@ function ApplicationModal({ product, onClose }) {
               onChange={handlePhoneChange}
               required
             />
-
             {phoneError && <p className="modal-error">{phoneError}</p>}
+
+            <input
+              className="modal-input"
+              type="text"
+              placeholder="Telegram username (необязательно)"
+              value={form.username}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, username: e.target.value }))
+              }
+            />
 
             <textarea
               className="modal-input modal-textarea"
               placeholder="Комментарий"
               value={form.comment}
-              onChange={(e) => setForm({ ...form, comment: e.target.value })}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, comment: e.target.value }))
+              }
             />
 
             <button type="submit" className="btn-order" disabled={loading}>
@@ -117,14 +154,27 @@ function ApplicationModal({ product, onClose }) {
   )
 }
 
+// ─── Карточка товара ──────────────────────────────────────────
 function ProductCard({ product }) {
   const [activeColor, setActiveColor] = useState(0)
   const [showModal, setShowModal] = useState(false)
   const { t } = useLang()
 
-  const img = Array.isArray(product.imgs) ? product.imgs[0] : product.img
-  const size = Array.isArray(product.size) ? product.size.join(', ') : product.size
-  const material = Array.isArray(product.material) ? product.material.join(', ') : product.material
+  const img = Array.isArray(product.imgs)
+    ? product.imgs[0]
+    : product.img
+
+  const size = Array.isArray(product.size)
+    ? product.size.join(', ')
+    : product.size
+
+  const material = Array.isArray(product.material)
+    ? product.material.join(', ')
+    : product.material
+
+  const colors = product.colors || []
+
+  const handleClose = useCallback(() => setShowModal(false), [])
 
   return (
     <>
@@ -137,40 +187,47 @@ function ProductCard({ product }) {
           <h2 className="divan-card__title">{product.title}</h2>
           <p className="divan-card__desc">{product.description}</p>
 
-          <div className="divan-card__section">
-            <span className="divan-card__label">
-              Цвет: <strong>{product.colors[activeColor].name}</strong>
-            </span>
-            <div className="divan-card__colors">
-              {product.colors.map((c, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className={i === activeColor ? 'color-dot active' : 'color-dot'}
-                  style={{ backgroundColor: c.hex }}
-                  onClick={() => setActiveColor(i)}
-                  title={c.name}
-                />
-              ))}
+          {colors.length > 0 && (
+            <div className="divan-card__section">
+              <span className="divan-card__label">
+                Цвет: <strong>{colors[activeColor]?.name}</strong>
+              </span>
+              <div className="divan-card__colors">
+                {colors.map((c, i) => (
+                  <button
+                    key={i}
+                    className={i === activeColor ? 'color-dot active' : 'color-dot'}
+                    style={{ backgroundColor: c.hex }}
+                    onClick={() => setActiveColor(i)}
+                    title={c.name}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="divan-card__section">
             <span className="divan-card__label">Характеристики:</span>
             <table className="divan-card__table">
               <tbody>
-                <tr>
-                  <td>{t.material}</td>
-                  <td>{material}</td>
-                </tr>
-                <tr>
-                  <td>Размеры</td>
-                  <td>{size}</td>
-                </tr>
-                <tr>
-                  <td>Артикул</td>
-                  <td>{product.article}</td>
-                </tr>
+                {material && (
+                  <tr>
+                    <td>{t.material}</td>
+                    <td>{material}</td>
+                  </tr>
+                )}
+                {size && (
+                  <tr>
+                    <td>Размеры</td>
+                    <td>{size}</td>
+                  </tr>
+                )}
+                {product.article && (
+                  <tr>
+                    <td>Артикул</td>
+                    <td>{product.article}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -181,36 +238,27 @@ function ProductCard({ product }) {
           </div>
 
           <div className="divan-card__actions">
-            <button
-              type="button"
-              className="btn-order"
-              onClick={() => setShowModal(true)}
-            >
+            <button className="btn-order" onClick={() => setShowModal(true)}>
               {t.order_btn}
             </button>
-
-            <button type="button" className="btn-favorite">
-              ❤ {t.favorite_btn}
-            </button>
+            <button className="btn-favorite">❤ {t.favorite_btn}</button>
           </div>
 
           <div className="divan-card__share">
-            <button type="button">↗ {t.share}</button>
-            <button type="button">⚖ {t.compare_btn}</button>
+            <button>↗ {t.share}</button>
+            <button>⚖ {t.compare_btn}</button>
           </div>
         </div>
       </div>
 
       {showModal && (
-        <ApplicationModal
-          product={product}
-          onClose={() => setShowModal(false)}
-        />
+        <ApplicationModal product={product} onClose={handleClose} />
       )}
     </>
   )
 }
 
+// ─── Список товаров ───────────────────────────────────────────
 export default function ProductList({ products, title, backPath, backLabel }) {
   const { t } = useLang()
 

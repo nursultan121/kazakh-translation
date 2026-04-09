@@ -115,3 +115,9 @@
     padding-right: 36px;
   }
 }
+
+.modal-error {
+  margin-top: -6px;
+  font-size: 13px;
+  color: #d62828;
+}
