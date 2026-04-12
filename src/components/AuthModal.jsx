@@ -4,7 +4,8 @@ import { login as apiLogin, register as apiRegister } from '../api/api'
 import './AuthModal.css'
 
 export default function AuthModal() {
-  const { login, register, closeModal } = useAuth()
+  // ✅ Получаем showModal и closeModal из контекста
+  const { showModal, login, register, closeModal } = useAuth()
   
   const [mode, setMode] = useState('login')
   const [name, setName] = useState('')
@@ -13,22 +14,31 @@ export default function AuthModal() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Закрытие по Escape
+  // ✅ Закрытие по Escape
   useEffect(() => {
     const handler = (e) => {
-      if (e.key === 'Escape') closeModal()
+      if (e.key === 'Escape' && showModal) {
+        closeModal()
+      }
     }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [closeModal])
+  }, [closeModal, showModal])
 
-  // Блокировка скролла
+  // ✅ Блокировка скролла ТОЛЬКО когда модалка открыта
   useEffect(() => {
-    document.body.style.overflow = 'hidden'
+    if (showModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
     return () => {
       document.body.style.overflow = 'unset'
     }
-  }, [])
+  }, [showModal])
+
+  // ✅ Если модалка не должна показываться — не рендерим ВООБЩЕ
+  if (!showModal) return null
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -123,25 +133,35 @@ export default function AuthModal() {
           )}
         </p>
 
-        {/* ✅ ИСПРАВЛЕННАЯ КНОПКА ЗАКРЫТИЯ */}
+        {/* ✅ КНОПКА ЗАКРЫТИЯ (X) — ИСПРАВЛЕНА */}
         <button 
           className="auth-box__close" 
           onClick={(e) => { 
-            e.stopPropagation(); 
-            closeModal(); 
+            e.stopPropagation()  // ✅ Останавливаем всплытие (чтобы не закрылось по клику на backdrop)
+            closeModal()          // ✅ Закрываем модалку
           }} 
           type="button" 
           aria-label="Закрыть"
-          style={{ 
-            position: 'absolute', 
-            top: '15px', 
-            right: '15px', 
-            cursor: 'pointer',
+          style={{
+            position: 'absolute',
+            top: '15px',
+            right: '15px',
             background: 'none',
             border: 'none',
-            fontSize: '24px',
-            zIndex: 10
+            fontSize: '28px',
+            cursor: 'pointer',
+            zIndex: 100,
+            width: '30px',
+            height: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0',
+            color: '#666',
+            transition: 'color 0.2s'
           }}
+          onMouseOver={(e) => e.currentTarget.style.color = '#000'}
+          onMouseOut={(e) => e.currentTarget.style.color = '#666'}
         >
           ✕
         </button>
