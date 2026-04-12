@@ -5,11 +5,11 @@ import { useCart } from '../context/CartContext'
 import { createApplication } from '../api/api'
 import './ProductDetail.css'
 
-// ✅ Базовый URL API
+// ✅ Базовый URL API (БЕЗ /api в конце!)
 const API_BASE_URL = 
   import.meta.env.VITE_API_URL_BACKEND || 
   import.meta.env.VITE_API_URL || 
-  'http://localhost:8000/api'
+  'http://localhost:8000'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -31,7 +31,8 @@ export default function ProductDetail() {
         setLoading(true)
         setError(null)
         
-        const url = `${API_BASE_URL}/products/${id}`
+        // ✅ Добавляем /api/ явно
+        const url = `${API_BASE_URL}/api/products/${id}`
         const response = await fetch(url)
         
         if (!response.ok) {
