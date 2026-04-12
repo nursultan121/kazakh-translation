@@ -1,82 +1,283 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './AIWelcome.css'
 
+// Базовый URL API (берём из env или используем дефолт)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+
 export default function AIWelcome({ onClose }) {
-  const [message, setMessage] = useState('')
-  const [isTyping, setIsTyping] = useState(true)
-  const [showButtons, setShowButtons] = useState(false)
+  // Сообщения чата
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      role: 'ai',
+      text: '👋 Здравствуйте! Я AI-помощник STEM Academia. Спросите меня про мебель, оборудование, доставку или наличие товаров!',
+      timestamp: new Date()
+    }
+  ])
+  
+  const [input, setInput] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const [error, setError] = useState(null)
+  
+  const messagesEndRef = useRef(null)
+  const inputRef = useRef(null)
 
-  // Текст приветствия от компании (можно менять)
-  const introText = `👋 Здравствуйте! Я — виртуальный помощник STEM Academia.
+  // Быстрые вопросы для старта диалога
+  const quickQuestions = [
+    "🪑 Какие есть диваны?",
+    "🚚 Условия доставки",
+    "📍 Где самовывоз?",
+    "💰 Как узнать цену?"
+  ]
 
-Мы помогаем школам, университетам и офисам Казахстана оснащать пространства качественной мебелью и оборудованием.
-
-🪑 Что у нас есть:
-• Парты, стулья, диваны, шкафы
-• Лабораторное оборудование
-• Интерактивные панели и 3D-декор
-
-🚚 Доставка по всему Казахстану
-📍 Самовывоз: Астана, Алматы
-
-Чем могу помочь?`
-
-  // Эффект "печатания" текста
+  // Авто-скролл к последнему сообщению
   useEffect(() => {
-    let i = 0
-    const timer = setInterval(() => {
-      setMessage(introText.slice(0, i))
-      i++
-      if (i > introText.length) {
-        clearInterval(timer)
-        setIsTyping(false)
-        setTimeout(() => setShowButtons(true), 400)
-      }
-    }, 20)
-    return () => clearInterval(timer)
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, isTyping])
+
+  // Фокус на поле ввода при открытии
+  useEffect(() => {
+    inputRef.current?.focus()
   }, [])
 
-  // Быстрые действия
-  const quickActions = [
-    { label: '🪑 Подобрать мебель', action: () => window.location.href = '/secondpage' },
-    { label: '🚚 Условия доставки', action: () => alert('Доставка по всему Казахстану. Стоимость рассчитывается индивидуально.') },
-    { label: '💬 Написать менеджеру', action: () => window.open('https://wa.me/77000395877', '_blank') },
-  ]
+  // Отправка сообщения
+  const handleSend = async (textToSend) => {
+    const text = textToSend || input
+    if (!text.trim()) return
+
+    // Добавляем сообщение пользователя
+    const userMessage = {
+      id: Date.now(),
+      role: 'user',
+      text: text.trim(),
+      timestamp: new Date()
+    }
+    
+    setMessages(prev => [...prev, userMessage])
+    setInput('')
+    setIsTyping(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          message: text.trim()  // 🔥 Ключ 'message' как ждёт бэкенд
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('❌ AI API error:', response.status, errorData)
+        throw new Error(`Ошибка сервера: ${response.status}`)
+      }
+
+      const data = await response.json()
+      
+      // Добавляем ответ ИИ
+      const aiMessage = {
+        id: Date.now() + 1,
+        role: 'ai',
+        text: data.reply || '❓ Не удалось получить ответ',
+        timestamp: new Date()
+      }
+      
+      setMessages(prev => [...prev, aiMessage])
+      
+    } catch (err) {
+      console.error('💥 Ошибка отправки:', err)
+      setError('Не удалось связаться с помощником. Попробуйте позже.')
+      
+      // Fallback-сообщение
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        role: 'ai',
+        text: '❌ Произошла ошибка соединения. Вы можете написать нам напрямую в [WhatsApp](https://wa.me/77000395877).',
+        timestamp: new Date()
+      }])
+    } finally {
+      setIsTyping(false)
+    }
+  }
+
+  // Обработка нажатия Enter
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
+  // Форматирование времени
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('ru-RU', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+  }
+
+  // Простая подсветка ссылок в тексте
+  const renderTextWithLinks = (text) => {
+    const urlRegex = /\[([^\]]+)\]\(([^)]+)\)/g
+    const parts = []
+    let lastIndex = 0
+    let match
+
+    while ((match = urlRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index))
+      }
+      parts.push(
+        <a 
+          key={match.index} 
+          href={match[2]} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="chat-link"
+        >
+          {match[1]}
+        </a>
+      )
+      lastIndex = match.index + match[0].length
+    }
+    
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex))
+    }
+    
+    return parts.length > 0 ? parts : text
+  }
 
   return (
     <div className="ai-welcome-overlay" onClick={onClose}>
-      <div className="ai-welcome-box" onClick={(e) => e.stopPropagation()}>
+      <div className="ai-chat-container" onClick={(e) => e.stopPropagation()}>
         
-        {/* Заголовок */}
-        <div className="ai-welcome-header">
-          <div className="ai-avatar">🤖</div>
-          <div>
-            <h4>AI-помощник STEM</h4>
-            <span className="ai-status">онлайн</span>
+        {/* Шапка чата */}
+        <header className="ai-chat-header">
+          <div className="ai-header-content">
+            <div className="ai-avatar">
+              <span className="ai-avatar-icon">🤖</span>
+              <span className="ai-avatar-status"></span>
+            </div>
+            <div className="ai-header-info">
+              <h3 className="ai-header-title">AI-помощник STEM</h3>
+              <p className="ai-header-subtitle">онлайн • отвечает за ~2 сек</p>
+            </div>
           </div>
-          <button className="ai-close" onClick={onClose} title="Закрыть">×</button>
+          <button 
+            className="ai-close-btn" 
+            onClick={onClose}
+            aria-label="Закрыть чат"
+            title="Закрыть"
+          >
+            ×
+          </button>
+        </header>
+
+        {/* Область сообщений */}
+        <div className="ai-chat-messages" role="log" aria-live="polite">
+          {messages.map((msg) => (
+            <div 
+              key={msg.id} 
+              className={`message-wrapper ${msg.role}`}
+            >
+              <div className="message-bubble">
+                <p className="message-text">
+                  {renderTextWithLinks(msg.text)}
+                </p>
+                <time className="message-time" dateTime={msg.timestamp.toISOString()}>
+                  {formatTime(msg.timestamp)}
+                </time>
+              </div>
+            </div>
+          ))}
+          
+          {/* Индикатор набора */}
+          {isTyping && (
+            <div className="message-wrapper ai">
+              <div className="message-bubble typing">
+                <span className="typing-dot"></span>
+                <span className="typing-dot"></span>
+                <span className="typing-dot"></span>
+              </div>
+            </div>
+          )}
+          
+          {/* Сообщение об ошибке */}
+          {error && (
+            <div className="message-wrapper error">
+              <div className="message-bubble error">
+                <p className="message-text">⚠️ {error}</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Якорь для скролла */}
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Сообщение */}
-        <div className="ai-welcome-message">
-          <p className="ai-text">{message}</p>
-          {isTyping && <span className="ai-typing">▍</span>}
-        </div>
-
-        {/* Кнопки действий */}
-        {showButtons && (
-          <div className="ai-quick-actions">
-            {quickActions.map((btn, i) => (
-              <button key={i} className="ai-action-btn" onClick={btn.action}>
-                {btn.label}
-              </button>
-            ))}
+        {/* Быстрые вопросы (показывать только если мало сообщений) */}
+        {messages.length <= 2 && !isTyping && (
+          <div className="ai-quick-questions">
+            <p className="quick-questions-label">Быстрые вопросы:</p>
+            <div className="quick-questions-list">
+              {quickQuestions.map((question, idx) => (
+                <button
+                  key={idx}
+                  className="quick-question-btn"
+                  onClick={() => handleSend(question.replace(/^[\w\s]+/, '').trim())}
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Подвал */}
-        <div className="ai-welcome-footer">
-          <small>💡 Подсказка: Вы можете закрыть это окно и открыть помощника позже через кнопку в углу</small>
+        {/* Поле ввода */}
+        <footer className="ai-chat-input">
+          <textarea
+            ref={inputRef}
+            className="ai-input-field"
+            placeholder="Задайте вопрос..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isTyping}
+            rows={1}
+            maxLength={500}
+            aria-label="Введите сообщение"
+          />
+          <button
+            className="ai-send-btn"
+            onClick={() => handleSend()}
+            disabled={isTyping || !input.trim()}
+            aria-label="Отправить сообщение"
+            title="Отправить (Enter)"
+          >
+            <svg 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+              className="send-icon"
+            >
+              <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" />
+            </svg>
+          </button>
+        </footer>
+
+        {/* Подвал с подсказкой */}
+        <div className="ai-chat-footer">
+          <small>
+            💡 ИИ может ошибаться. Для точной информации пишите в 
+            <a href="https://wa.me/77000395877" target="_blank" rel="noopener" className="footer-link">
+              WhatsApp
+            </a>
+          </small>
         </div>
 
       </div>

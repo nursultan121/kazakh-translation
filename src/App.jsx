@@ -5,7 +5,7 @@ import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import FloatingButtons from './components/FloatingButtons'
-import AIWelcome from './components/AIWelcome' // ✅ AI-приветствие
+import AIWelcome from './components/AIWelcome'
 
 // Контексты
 import { useCart } from './context/CartContext'
@@ -24,6 +24,7 @@ import SearchPage from './pages/SearchPage'
 import FavoritesPage from './pages/FavoritesPage'
 import ProfilePage from './pages/ProfilePage'
 import DigitalPage from './pages/digital/DigitalPage'
+import ProductDetail from './pages/ProductDetail'
 
 // Категории мебели
 import Divany from './pages/categories/Divany'
@@ -60,27 +61,25 @@ import Stanki from './pages/electro/Stanki'
 import Bytovaya from './pages/electro/Bytovaya'
 import Printers3D from './pages/electro/Printers3D'
 
+// ==========================================
+// 🚀 ОСНОВНОЙ КОМПОНЕНТ APP
+// ==========================================
 export default function App() {
   const { isOpen } = useCart()
   const { showModal } = useAuth()
   
-  // ✅ Состояние для AI-приветствия
+  // Состояние для AI-приветствия
   const [showAIWelcome, setShowAIWelcome] = useState(false)
 
-  // ✅ Показываем приветствие только при первом визите
+  // ✅ Показываем приветствие КАЖДЫЙ раз при загрузке
   useEffect(() => {
-    const hasSeen = localStorage.getItem('ai_welcome_seen')
-    if (!hasSeen) {
-      // Небольшая задержка, чтобы пользователь успел увидеть сайт
-      const timer = setTimeout(() => setShowAIWelcome(true), 1500)
-      return () => clearTimeout(timer)
-    }
+    const timer = setTimeout(() => setShowAIWelcome(true), 1000)
+    return () => clearTimeout(timer)
   }, [])
 
-  // ✅ Обработчик закрытия: запоминаем, что пользователь видел окно
+  // ✅ Просто закрываем окно (без сохранения в localStorage)
   const handleAIClose = () => {
     setShowAIWelcome(false)
-    localStorage.setItem('ai_welcome_seen', 'true')
   }
 
   return (
@@ -96,13 +95,22 @@ export default function App() {
 
       {/* Маршруты */}
       <Routes>
+        {/* Главные страницы */}
         <Route path="/" element={<FirstPage />} />
         <Route path="/secondpage" element={<SecondPage />} />
         <Route path="/electro" element={<ThirdPage />} />
         <Route path="/decor" element={<DecorPage />} />
         <Route path="/equipment" element={<EquipmentPage />} />
+        <Route path="/contacts" element={<Contacts />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/digital" element={<DigitalPage />} />
         
-        {/* Мебель */}
+        {/* Страница товара */}
+        <Route path="/product/:id" element={<ProductDetail />} />
+        
+        {/* Категории мебели */}
         <Route path="/secondpage/divany" element={<Divany />} />
         <Route path="/secondpage/kreslo" element={<Kreslo />} />
         <Route path="/secondpage/pufy" element={<Pufy />} />
@@ -120,9 +128,6 @@ export default function App() {
         <Route path="/equipment/ulab" element={<Ulab />} />
         <Route path="/equipment/labdisc" element={<Labdisc />} />
         
-        {/* Контакты */}
-        <Route path="/contacts" element={<Contacts />} />
-        
         {/* Декор */}
         <Route path="/decor/gos" element={<Gos />} />
         <Route path="/decor/3dpanels" element={<Panels3D />} />
@@ -139,14 +144,6 @@ export default function App() {
         <Route path="/electro/stanki" element={<Stanki />} />
         <Route path="/electro/bytovaya" element={<Bytovaya />} />
         <Route path="/electro/printers3d" element={<Printers3D />} />
-        
-        {/* Цифровые продукты */}
-        <Route path="/digital" element={<DigitalPage />} />
-        
-        {/* Системные */}
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
 
       {/* Футер */}
@@ -155,7 +152,7 @@ export default function App() {
       {/* Плавающие кнопки связи */}
       <FloatingButtons />
 
-      {/* ✅ AI-приветствие (показывается 1 раз) */}
+      {/* ✅ AI-приветствие (показывается КАЖДЫЙ раз) */}
       {showAIWelcome && <AIWelcome onClose={handleAIClose} />}
     </>
   )
