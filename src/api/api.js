@@ -44,12 +44,18 @@ export async function createOrder(data) {
 }
 
 export async function createApplication(data) {
-  // ✅ ИСПРАВЛЕНО: добавлен /api/ префикс
-  const res = await fetch(`${BASE_URL}/api/applications`, {
+  // 🔥 ЖЕСТКИЙ ХАРДКОД для отладки
+  const res = await fetch('https://stem-backend-wte3.onrender.com/api/applications', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
+  
+  if (!res.ok) {
+    const error = await res.text()
+    throw new Error(error)
+  }
+  
   return res.json()
 }
 
