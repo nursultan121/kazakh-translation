@@ -2,7 +2,7 @@
 const BASE_URL = 
   import.meta.env.VITE_API_URL_BACKEND || 
   import.meta.env.VITE_API_URL || 
-  'http://localhost:8000/api'
+  'http://localhost:8000'
 
 export async function getProducts(params = {}) {
   const query = new URLSearchParams(params).toString()
