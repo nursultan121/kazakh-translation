@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 
 // Компоненты интерфейса
@@ -6,10 +5,6 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import FloatingButtons from './components/FloatingButtons'
 import AIWelcome from './components/AIWelcome'
-
-// Контексты
-import { useCart } from './context/CartContext'
-import { useAuth } from './context/AuthContext'
 import CartDrawer from './components/CartDrawer'
 import AuthModal from './components/AuthModal'
 
@@ -62,36 +57,25 @@ import Bytovaya from './pages/electro/Bytovaya'
 import Printers3D from './pages/electro/Printers3D'
 
 // ==========================================
-// 🚀 ОСНОВНОЙ КОМПОНЕНТ APP
+// 🚀 ОСНОВНОЙ КОМПОНЕНТ APP (без хуков контекста!)
 // ==========================================
 export default function App() {
-  const { isOpen } = useCart()
-  const { showModal } = useAuth()
-  
-  // Состояние для AI-приветствия
-  const [showAIWelcome, setShowAIWelcome] = useState(false)
-
-  // ✅ Показываем приветствие КАЖДЫЙ раз при загрузке
-  useEffect(() => {
-    const timer = setTimeout(() => setShowAIWelcome(true), 1000)
-    return () => clearTimeout(timer)
-  }, [])
-
-  // ✅ Просто закрываем окно (без сохранения в localStorage)
-  const handleAIClose = () => {
-    setShowAIWelcome(false)
-  }
-
   return (
     <>
       {/* Навбар */}
       <Navbar />
 
-      {/* Выдвижная корзина */}
-      {isOpen && <CartDrawer />}
+      {/* 
+        ✅ ВАЖНО: CartDrawer и AuthModal сами решают, 
+        показываться им или нет, через useCart() и useAuth() внутри себя.
+        App больше не вызывает эти хуки.
+      */}
+      
+      {/* Выдвижная корзина (сама проверит isOpen внутри) */}
+      <CartDrawer />
 
-      {/* Модалка авторизации */}
-      {showModal && <AuthModal />}
+      {/* Модалка авторизации (сама проверит showModal внутри) */}
+      <AuthModal />
 
       {/* Маршруты */}
       <Routes>
@@ -152,8 +136,8 @@ export default function App() {
       {/* Плавающие кнопки связи */}
       <FloatingButtons />
 
-      {/* ✅ AI-приветствие (показывается КАЖДЫЙ раз) */}
-      {showAIWelcome && <AIWelcome onClose={handleAIClose} />}
+      {/* AI-приветствие (локальный стейт, не зависит от контекста) */}
+      <AIWelcome />
     </>
   )
 }

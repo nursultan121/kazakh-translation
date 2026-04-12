@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { login as apiLogin, register as apiRegister } from '../api/api'
 import './AuthModal.css'
 
 export default function AuthModal() {
-  const { login, register, setShowModal } = useAuth()
+  const { showModal, closeModal, setUser, setUserEmail } = useAuth()
   const [mode, setMode] = useState('login')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -11,25 +12,73 @@ export default function AuthModal() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // Закрытие по Escape
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Escape' && showModal) closeModal()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [showModal, closeModal])
+
+  // Блокировка скролла при открытой модалке
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showModal])
+
+  // ✅ Если модалка не должна показываться — не рендерим ничего
+  if (!showModal) return null
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
+    
     try {
       if (mode === 'register') {
-        await register(name, email, password)
+        const data = await apiRegister(email, password, name)
+        localStorage.setItem('stem_access_token', data.access_token)
+        
+        // Загружаем данные пользователя
+        const API_BASE = import.meta.env.VITE_API_URL_BACKEND || import.meta.env.VITE_API_URL || 'http://localhost:8000'
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { Authorization: `Bearer ${data.access_token}` }
+        })
+        if (res.ok) {
+          const userData = await res.json()
+          setUser(userData)
+          setUserEmail(userData.email)
+        }
       } else {
-        await login(email, password)
+        const data = await apiLogin(email, password)
+        localStorage.setItem('stem_access_token', data.access_token)
+        
+        // Загружаем данные пользователя
+        const API_BASE = import.meta.env.VITE_API_URL_BACKEND || import.meta.env.VITE_API_URL || 'http://localhost:8000'
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { Authorization: `Bearer ${data.access_token}` }
+        })
+        if (res.ok) {
+          const userData = await res.json()
+          setUser(userData)
+          setUserEmail(userData.email)
+        }
       }
+      closeModal()
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Произошла ошибка')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="auth-backdrop" onClick={() => setShowModal(false)}>
+    <div className="auth-backdrop" onClick={closeModal}>
       <div className="auth-box" onClick={e => e.stopPropagation()}>
 
         <div className="auth-box__logo">
@@ -41,10 +90,12 @@ export default function AuthModal() {
           <button
             className={`auth-box__tab ${mode === 'login' ? 'active' : ''}`}
             onClick={() => { setMode('login'); setError('') }}
+            type="button"
           >Войти</button>
           <button
             className={`auth-box__tab ${mode === 'register' ? 'active' : ''}`}
             onClick={() => { setMode('register'); setError('') }}
+            type="button"
           >Регистрация</button>
         </div>
 
@@ -57,6 +108,8 @@ export default function AuthModal() {
                 placeholder="Ваше имя"
                 value={name}
                 onChange={e => setName(e.target.value)}
+                required
+                disabled={loading}
               />
             </div>
           )}
@@ -67,6 +120,8 @@ export default function AuthModal() {
               placeholder="example@mail.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              required
+              disabled={loading}
             />
           </div>
           <div className="auth-box__field">
@@ -76,6 +131,9 @@ export default function AuthModal() {
               placeholder="••••••••"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              required
+              minLength={6}
+              disabled={loading}
             />
           </div>
 
@@ -88,13 +146,13 @@ export default function AuthModal() {
 
         <p className="auth-box__switch">
           {mode === 'login' ? (
-            <>Нет аккаунта? <span onClick={() => { setMode('register'); setError('') }}>Зарегистрироваться</span></>
+            <>Нет аккаунта? <button type="button" onClick={() => { setMode('register'); setError('') }} className="link-btn">Зарегистрироваться</button></>
           ) : (
-            <>Уже есть аккаунт? <span onClick={() => { setMode('login'); setError('') }}>Войти</span></>
+            <>Уже есть аккаунт? <button type="button" onClick={() => { setMode('login'); setError('') }} className="link-btn">Войти</button></>
           )}
         </p>
 
-        <button className="auth-box__close" onClick={() => setShowModal(false)}>✕</button>
+        <button className="auth-box__close" onClick={closeModal} type="button" aria-label="Закрыть">✕</button>
       </div>
     </div>
   )

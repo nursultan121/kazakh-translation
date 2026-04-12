@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import './AIWelcome.css'
 
-// ✅ Базовый URL API: проверяем VITE_API_URL_BACKEND (для продакшена) или VITE_API_URL (локально)
+// ✅ Базовый URL API: приоритет продакшена → локальной разработки
 const API_BASE_URL = 
   import.meta.env.VITE_API_URL_BACKEND || 
   import.meta.env.VITE_API_URL || 
   'http://localhost:8000/api'
 
-export default function AIWelcome({ onClose }) {
+export default function AIWelcome() {
+  // ✅ Локальное состояние видимости (не зависит от пропсов)
+  const [isVisible, setIsVisible] = useState(false)
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -31,15 +33,48 @@ export default function AIWelcome({ onClose }) {
     "💰 Как узнать цену?"
   ]
 
-  // Авто-скролл к последнему сообщению
+  // ✅ Показываем чат через 1 секунду после загрузки
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isTyping])
-
-  // Фокус на поле ввода при открытии
-  useEffect(() => {
-    inputRef.current?.focus()
+    const timer = setTimeout(() => setIsVisible(true), 1000)
+    return () => clearTimeout(timer)
   }, [])
+
+  // ✅ Авто-скролл к последнему сообщению
+  useEffect(() => {
+    if (isVisible) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, isTyping, isVisible])
+
+  // ✅ Фокус на поле ввода при открытии
+  useEffect(() => {
+    if (isVisible && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isVisible])
+
+  // ✅ Закрытие по Escape
+  useEffect(() => {
+    if (!isVisible) return
+    const handler = (e) => {
+      if (e.key === 'Escape') setIsVisible(false)
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [isVisible])
+
+  // ✅ Блокировка скролла при открытом чате
+  useEffect(() => {
+    if (isVisible) {
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isVisible])
+
+  // ✅ Если чат скрыт — не рендерим ничего
+  if (!isVisible) return null
 
   // Отправка сообщения
   const handleSend = async (textToSend) => {
@@ -134,13 +169,13 @@ export default function AIWelcome({ onClose }) {
   }
 
   return (
-    <div className="ai-welcome-overlay" onClick={onClose}>
+    <div className="ai-welcome-overlay" onClick={() => setIsVisible(false)}>
       <div className="ai-chat-container" onClick={(e) => e.stopPropagation()}>
         
         <header className="ai-chat-header">
           <div className="ai-header-content">
             <div className="ai-avatar">
-              <span className="ai-avatar-icon">🤖</span>
+              <span className="ai-avatar-icon" role="img" aria-label="AI помощник">🤖</span>
               <span className="ai-avatar-status"></span>
             </div>
             <div className="ai-header-info">
@@ -148,7 +183,7 @@ export default function AIWelcome({ onClose }) {
               <p className="ai-header-subtitle">онлайн • отвечает за ~2 сек</p>
             </div>
           </div>
-          <button className="ai-close-btn" onClick={onClose} aria-label="Закрыть чат">×</button>
+          <button className="ai-close-btn" onClick={() => setIsVisible(false)} aria-label="Закрыть чат">×</button>
         </header>
 
         <div className="ai-chat-messages" role="log" aria-live="polite">
@@ -165,7 +200,7 @@ export default function AIWelcome({ onClose }) {
           
           {isTyping && (
             <div className="message-wrapper ai">
-              <div className="message-bubble typing">
+              <div className="message-bubble typing" aria-label="ИИ печатает...">
                 <span className="typing-dot"></span>
                 <span className="typing-dot"></span>
                 <span className="typing-dot"></span>
@@ -189,7 +224,12 @@ export default function AIWelcome({ onClose }) {
             <p className="quick-questions-label">Быстрые вопросы:</p>
             <div className="quick-questions-list">
               {quickQuestions.map((question, idx) => (
-                <button key={idx} className="quick-question-btn" onClick={() => handleSend(question.replace(/^[\w\s]+/, '').trim())}>
+                <button 
+                  key={idx} 
+                  className="quick-question-btn" 
+                  onClick={() => handleSend(question.replace(/^[\w\s]+/, '').trim())}
+                  type="button"
+                >
                   {question}
                 </button>
               ))}
@@ -215,6 +255,7 @@ export default function AIWelcome({ onClose }) {
             onClick={() => handleSend()}
             disabled={isTyping || !input.trim()}
             aria-label="Отправить сообщение"
+            type="button"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="send-icon">
               <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" />
