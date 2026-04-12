@@ -6,7 +6,7 @@ export default function CartDrawer() {
   const { 
     cartItems, 
     isOpen, 
-    closeCart, 
+    setIsOpen, 
     removeFromCart, 
     increaseQty, 
     decreaseQty, 
@@ -14,32 +14,26 @@ export default function CartDrawer() {
     clearCart 
   } = useCart()
 
+  // ✅ Единая функция закрытия
+  const handleClose = () => setIsOpen(false)
+
   // ✅ Если корзина закрыта — не рендерим ничего
   if (!isOpen) return null
 
   const handleCheckout = async () => {
     try {
-      // Формируем заказ для отправки на бэкенд
       const orderData = {
         items: cartItems.map(item => ({
           product_id: item.id,
           quantity: item.quantity,
           price: item.price
         })),
-        total: totalPrice,
-        customer_info: {
-          // Можно добавить форму для данных клиента
-        }
+        total: totalPrice
       }
 
-      // Отправляем заказ (опционально)
       await createOrder(orderData)
-      
-      // Очищаем корзину и закрываем
       clearCart()
-      closeCart()
-      
-      // Показываем уведомление (можно добавить toast)
+      handleClose()
       alert('✅ Заказ оформлен! Менеджер свяжется с вами.')
       
     } catch (err) {
@@ -50,18 +44,49 @@ export default function CartDrawer() {
 
   return (
     <>
-      <div className="cart-overlay" onClick={closeCart} aria-hidden="true" />
+      {/* Оверлей (клик по фону тоже закрывает) */}
+      <div className="cart-overlay" onClick={handleClose} aria-hidden="true" />
+      
       <div className="cart-drawer" role="dialog" aria-label="Корзина покупок">
         <div className="cart-drawer__header">
           <h2>Корзина</h2>
-          <button className="cart-drawer__close" onClick={closeCart} aria-label="Закрыть корзину">✕</button>
+          
+          {/* ✅ ИСПРАВЛЕННАЯ КНОПКА ЗАКРЫТИЯ (X) */}
+          <button
+            className="cart-drawer__close"
+            onClick={(e) => {
+              e.stopPropagation() // ✅ Останавливаем всплытие
+              handleClose()
+            }}
+            type="button"
+            aria-label="Закрыть корзину"
+            style={{ 
+              cursor: 'pointer', 
+              background: 'none', 
+              border: 'none', 
+              fontSize: '24px',
+              padding: '5px',
+              lineHeight: 1,
+              zIndex: 10
+            }}
+          >
+            ✕
+          </button>
         </div>
 
         {cartItems.length === 0 ? (
           <div className="cart-drawer__empty">
-            <span className="empty-icon">🛒</span>
+            <span className="empty-icon" style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>🛒</span>
             <p>Ваша корзина пуста</p>
-            <button className="btn-continue" onClick={closeCart}>Продолжить покупки</button>
+            {/* ✅ Кнопка "Продолжить покупки" тоже закрывает корзину */}
+            <button 
+              className="btn-continue" 
+              onClick={handleClose}
+              type="button"
+              style={{ marginTop: '15px', padding: '10px 20px', cursor: 'pointer' }}
+            >
+              Продолжить покупки
+            </button>
           </div>
         ) : (
           <>
@@ -74,15 +99,16 @@ export default function CartDrawer() {
                     <p className="cart-item__article">Арт: {item.article}</p>
                     <p className="cart-item__price">{(item.price * item.quantity).toLocaleString('ru-KZ')} ₸</p>
                     <div className="cart-item__qty">
-                      <button onClick={() => decreaseQty(item.id)} aria-label="Уменьшить количество">−</button>
-                      <span aria-label={`Количество: ${item.quantity}`}>{item.quantity}</span>
-                      <button onClick={() => increaseQty(item.id)} aria-label="Увеличить количество">+</button>
+                      <button onClick={() => decreaseQty(item.id)} type="button">−</button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => increaseQty(item.id)} type="button">+</button>
                     </div>
                   </div>
                   <button 
                     className="cart-item__remove" 
                     onClick={() => removeFromCart(item.id)}
-                    aria-label={`Удалить ${item.name} из корзины`}
+                    type="button"
+                    style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '18px' }}
                   >✕</button>
                 </div>
               ))}
@@ -92,10 +118,9 @@ export default function CartDrawer() {
                 <span>Итого:</span>
                 <strong>{totalPrice.toLocaleString('ru-KZ')} ₸</strong>
               </div>
-              <button className="cart-drawer__checkout" onClick={handleCheckout}>
+              <button className="cart-drawer__checkout" onClick={handleCheckout} type="button">
                 📝 Оформить заявку
               </button>
-              <p className="cart-note">🔒 Данные защищены. Менеджер свяжется для подтверждения.</p>
             </div>
           </>
         )}
