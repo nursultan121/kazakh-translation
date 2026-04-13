@@ -27,17 +27,22 @@ const products = [
 
 const telegramBase = 'https://t.me/stem_academia_bot?text='
 
-function ImgOrSoon({ src, alt }) {
+function CardImage({ src, alt }) {
   const handleError = (e) => {
     e.target.style.display = 'none'
     e.target.nextSibling.style.display = 'flex'
   }
   return (
     <>
-      <img src={src} alt={alt} onError={handleError} />
-      <div className="peregorodki-soon" style={{ display: 'none' }}>
-        <span className="peregorodki-soon__badge">СКОРО</span>
-        <span className="peregorodki-soon__text">СКОРО</span>
+      <img
+        src={src}
+        alt={alt}
+        className="perego-img-item"
+        onError={handleError}
+      />
+      <div className="perego-img-soon" style={{ display: 'none' }}>
+        <span className="perego-soon-badge">СКОРО</span>
+        <span className="perego-soon-text">СКОРО</span>
       </div>
     </>
   )
@@ -61,25 +66,29 @@ export default function Peregorodki() {
       <div className="peregorodki-list">
         {products.map((p) => (
           <div key={p.id} className="peregorodki-card">
+
             <div className="peregorodki-card__gallery">
               {p.img.length > 1 ? (
-                <div className="peregorodki-card__multi">
+                <div className="perego-multi-img">
                   {p.img.map((src, i) => (
-                    <ImgOrSoon key={i} src={src} alt={p.title} />
+                    <CardImage key={i} src={src} alt={p.title} />
                   ))}
                 </div>
               ) : (
-                <ImgOrSoon src={p.img[0]} alt={p.title} />
+                <CardImage src={p.img[0]} alt={p.title} />
               )}
             </div>
 
             <div className="peregorodki-card__info">
               <h2>{p.title}</h2>
-              <p className="peregorodki-card__desc">Описание:</p>
-              <p>{p.description}</p>
+              <p className="peregorodki-card__desc-label">Описание:</p>
+              <p className="peregorodki-card__desc">{p.description}</p>
               <table className="peregorodki-card__table">
                 <tbody>
-                  <tr><td>Артикул</td><td>{p.article}</td></tr>
+                  <tr>
+                    <td>Артикул</td>
+                    <td>{p.article}</td>
+                  </tr>
                 </tbody>
               </table>
               <div className="peregorodki-card__delivery">
@@ -100,6 +109,7 @@ export default function Peregorodki() {
                 <button type="button">⚖ Сравнить</button>
               </div>
             </div>
+
           </div>
         ))}
       </div>
