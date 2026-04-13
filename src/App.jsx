@@ -35,7 +35,7 @@ import Barnye from './pages/categories/Barnye'
 import Shkafy from './pages/categories/Shkafy'
 import Vstroenye from './pages/categories/Vstroenye'
 import Standartnye from './pages/categories/Standartnye'
-import Kuxnya from './pages/categories/Kuxnya'
+import Kuxnya from './pages/categories/Kuhnya'
 // Оборудование
 import Ulab from './pages/equipment/Ulab'
 import Labdisc from './pages/equipment/Labdisc'
