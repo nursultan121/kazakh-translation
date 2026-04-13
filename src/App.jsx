@@ -8,7 +8,7 @@ import AIWelcome from './components/AIWelcome'
 import CartDrawer from './components/CartDrawer'
 import AuthModal from './components/AuthModal'
 import RoqedPage from './pages/digital/RoqedPage'
-
+import StemPlatformPage from './pages/digital/StemPlatformPage'
 // Страницы
 import FirstPage from './pages/FirstPage'
 import SecondPage from './pages/SecondPage'
@@ -91,7 +91,7 @@ export default function App() {
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/digital" element={<DigitalPage />} />
-        
+        <Route path="/digital/stemplatform" element={<StemPlatformPage />} />
         {/* Страница товара */}
         <Route path="/product/:id" element={<ProductDetail />} />
         
