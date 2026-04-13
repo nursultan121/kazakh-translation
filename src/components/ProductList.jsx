@@ -63,6 +63,7 @@ function ApplicationModal({ product, onClose }) {
       const p4 = digits.slice(9, 11)
 
       let formatted = '+7'
+
       if (p1) formatted += ` (${p1}`
       if (p1.length === 3) formatted += ')'
       if (p2) formatted += ` ${p2}`
@@ -288,61 +289,56 @@ function ProductCard({ product }) {
 
   return (
     <>
-      <div className="product-detail-card">
-        <div className="product-detail__gallery">
-          <div className="product-detail__main-img-wrapper">
-            {showPlaceholder ? (
-              <ImagePlaceholder />
-            ) : (
-              <img
-                src={img}
-                alt={product.title}
-                className="product-detail__main-img"
-                loading="lazy"
-                onError={() => setImgError(true)}
-              />
-            )}
-
-            {product.in_stock === false && (
-              <span className="badge-out">Нет в наличии</span>
-            )}
-          </div>
-        </div>
-
-        <div className="product-detail__info">
-          <h2 className="product-detail__title">{product.title}</h2>
-
-          {product.description && (
-            <p className="product-detail__desc">{product.description}</p>
+      <div className="divan-card">
+        <div className="divan-card__gallery">
+          {showPlaceholder ? (
+            <ImagePlaceholder />
+          ) : (
+            <img
+              src={img}
+              alt={product.title}
+              className="divan-card__main-img"
+              loading="lazy"
+              onError={() => setImgError(true)}
+            />
           )}
 
-          {colors.length > 0 && (
-            <div>
-              <div className="product-detail__desc">
-                Цвет: <strong>{colors[activeColor]?.name || 'Стандарт'}</strong>
-              </div>
+          {product.in_stock === false && (
+            <span className="badge-out">Нет в наличии</span>
+          )}
+        </div>
 
-              <div className="product-detail__colors">
+        <div className="divan-card__info">
+          <h2 className="divan-card__title">{product.title}</h2>
+          <p className="divan-card__desc">{product.description}</p>
+
+          {colors.length > 0 && (
+            <div className="divan-card__section">
+              <span className="divan-card__label">
+                Цвет: <strong>{colors[activeColor]?.name || 'Стандарт'}</strong>
+              </span>
+
+              <div className="divan-card__colors">
                 {colors.map((color, index) => (
                   <button
                     key={index}
-                    type="button"
-                    className={`color-dot ${index === activeColor ? 'active' : ''}`}
+                    className={`color-dot ${
+                      index === activeColor ? 'active' : ''
+                    }`}
                     style={{ backgroundColor: color.hex }}
                     onClick={() => setActiveColor(index)}
                     title={color.name}
+                    type="button"
                   />
                 ))}
               </div>
             </div>
           )}
 
-          <div className="product-detail__specs">
-            <div className="product-detail__desc" style={{ fontWeight: 700, color: '#333' }}>
-              Характеристики:
-            </div>
+          <div className="divan-card__section">
+            <span className="divan-card__label">Характеристики:</span>
 
-            <table className="product-detail__table">
+            <table className="divan-card__table">
               <tbody>
                 {material && (
                   <tr>
@@ -368,12 +364,12 @@ function ProductCard({ product }) {
             </table>
           </div>
 
-          <div className="product-detail__delivery">
+          <div className="divan-card__delivery">
             <span>🚚 {t.delivery || 'Доставка по Казахстану'}</span>
-            <span>📍 {t.pickup || 'Самовывоз'}: г. Астана, ул. Домалак-ана 26</span>
+            <span>📍 {t.pickup || 'Самовывоз'}</span>
           </div>
 
-          <div className="product-actions-group">
+          <div className="divan-card__actions">
             <button
               className="btn-add-to-cart"
               onClick={handleAddToCart}
@@ -384,7 +380,7 @@ function ProductCard({ product }) {
             </button>
 
             <button
-              className="btn-order-secondary"
+              className={`btn-favorite ${inFavorite ? 'active' : ''}`}
               onClick={handleFavoriteClick}
               type="button"
               aria-pressed={inFavorite}
@@ -394,10 +390,9 @@ function ProductCard({ product }) {
           </div>
 
           <button
-            className="btn-add-to-cart"
+            className="btn-order-full"
             onClick={() => setShowModal(true)}
             type="button"
-            style={{ marginTop: '10px', width: '100%' }}
           >
             📝 Оставить заявку
           </button>
@@ -452,10 +447,7 @@ export default function ProductList({ products, title, backPath, backLabel }) {
         {title} <span>{products.length} товаров</span>
       </h1>
 
-      <div
-        className="divany-list"
-        style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}
-      >
+      <div className="divany-list">
         {products.map((product) => (
           <ProductCard key={product.id || product.article} product={product} />
         ))}
