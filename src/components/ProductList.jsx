@@ -15,6 +15,7 @@ function ApplicationModal({ product, onClose }) {
     username: '',
     comment: '',
   })
+
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [phoneError, setPhoneError] = useState('')
@@ -26,41 +27,93 @@ function ApplicationModal({ product, onClose }) {
     }
 
     document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
-
-  useEffect(() => {
     document.body.style.overflow = 'hidden'
+
     return () => {
+      document.removeEventListener('keydown', handler)
       document.body.style.overflow = 'unset'
     }
-  }, [])
+  }, [onClose])
 
   const validateName = (name) => {
-    const cleaned = name.trim()
-    return /^[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё\s-]{2,50}$/.test(cleaned)
+    const cleaned = name.trim().replace(/\s+/g, ' ')
+    return /^[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё]+(?:[ -][A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё]+)*$/.test(
+      cleaned
+    )
   }
 
   const validatePhone = (phone) => {
     const digits = phone.replace(/\D/g, '')
-    return digits.length >= 10 && digits.length <= 15
+    return /^(\d{10}|\d{11}|\d{12})$/.test(digits)
+  }
+
+  const formatPhone = (value) => {
+    let digits = value.replace(/\D/g, '')
+
+    if (digits.startsWith('8')) {
+      digits = '7' + digits.slice(1)
+    }
+
+    if (digits.startsWith('7')) {
+      digits = digits.slice(0, 11)
+
+      const p1 = digits.slice(1, 4)
+      const p2 = digits.slice(4, 7)
+      const p3 = digits.slice(7, 9)
+      const p4 = digits.slice(9, 11)
+
+      let formatted = '+7'
+
+      if (p1) formatted += ` (${p1}`
+      if (p1.length === 3) formatted += ')'
+      if (p2) formatted += ` ${p2}`
+      if (p3) formatted += `-${p3}`
+      if (p4) formatted += `-${p4}`
+
+      return formatted
+    }
+
+    return value
+  }
+
+  const handleNameChange = (e) => {
+    const filtered = e.target.value.replace(
+      /[^A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё\s-]/g,
+      ''
+    )
+
+    setForm((prev) => ({ ...prev, name: filtered }))
+    setNameError('')
   }
 
   const handlePhoneChange = (e) => {
-    const filtered = e.target.value.replace(/[^\d+()\-\s]/g, '')
-    setForm((prev) => ({ ...prev, phone: filtered }))
+    const formatted = formatPhone(e.target.value)
+    setForm((prev) => ({ ...prev, phone: formatted }))
     setPhoneError('')
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!validateName(form.name)) {
-      setNameError('Введите корректное имя')
+    const cleanName = form.name.trim().replace(/\s+/g, ' ')
+    const cleanPhone = form.phone.trim()
+
+    if (!cleanName || cleanName.length < 2) {
+      setNameError('Имя должно содержать минимум 2 символа')
       return
     }
 
-    if (!validatePhone(form.phone)) {
+    if (!validateName(cleanName)) {
+      setNameError('Введите имя только буквами')
+      return
+    }
+
+    if (!cleanPhone) {
+      setPhoneError('Введите номер телефона')
+      return
+    }
+
+    if (!validatePhone(cleanPhone)) {
       setPhoneError('Введите корректный номер телефона')
       return
     }
@@ -74,10 +127,10 @@ function ApplicationModal({ product, onClose }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: form.name,
-          phone: form.phone,
-          username: form.username,
-          comment: form.comment,
+          name: cleanName,
+          phone: cleanPhone,
+          username: form.username.trim(),
+          comment: form.comment.trim(),
           product_name: product.title,
           article: product.article,
           product_url: window.location.href,
@@ -124,10 +177,7 @@ function ApplicationModal({ product, onClose }) {
                   type="text"
                   placeholder="Ваше имя"
                   value={form.name}
-                  onChange={(e) => {
-                    setForm((prev) => ({ ...prev, name: e.target.value }))
-                    setNameError('')
-                  }}
+                  onChange={handleNameChange}
                   required
                 />
                 {nameError && <span className="modal-error">{nameError}</span>}
@@ -154,7 +204,10 @@ function ApplicationModal({ product, onClose }) {
                   placeholder="Telegram username (необязательно)"
                   value={form.username}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, username: e.target.value }))
+                    setForm((prev) => ({
+                      ...prev,
+                      username: e.target.value,
+                    }))
                   }
                 />
               </div>
@@ -165,7 +218,10 @@ function ApplicationModal({ product, onClose }) {
                   placeholder="Комментарий"
                   value={form.comment}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, comment: e.target.value }))
+                    setForm((prev) => ({
+                      ...prev,
+                      comment: e.target.value,
+                    }))
                   }
                 />
               </div>
@@ -201,7 +257,9 @@ function ProductCard({ product }) {
   const { addToCart } = useCart()
 
   const img = Array.isArray(product.imgs) ? product.imgs[0] : product.img
-  const size = Array.isArray(product.size) ? product.size.join(', ') : product.size
+  const size = Array.isArray(product.size)
+    ? product.size.join(', ')
+    : product.size
   const material = Array.isArray(product.material)
     ? product.material.join(', ')
     : product.material
@@ -264,7 +322,9 @@ function ProductCard({ product }) {
                 {colors.map((color, index) => (
                   <button
                     key={index}
-                    className={`color-dot ${index === activeColor ? 'active' : ''}`}
+                    className={`color-dot ${
+                      index === activeColor ? 'active' : ''
+                    }`}
                     style={{ backgroundColor: color.hex }}
                     onClick={() => setActiveColor(index)}
                     title={color.name}
@@ -339,7 +399,9 @@ function ProductCard({ product }) {
         </div>
       </div>
 
-      {showModal && <ApplicationModal product={product} onClose={handleClose} />}
+      {showModal && (
+        <ApplicationModal product={product} onClose={handleClose} />
+      )}
     </>
   )
 }
