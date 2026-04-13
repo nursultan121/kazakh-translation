@@ -25,24 +25,34 @@ export function CartProvider({ children }) {
   }, [cartItems, userEmail])
 
   const addToCart = (product) => {
+    // ✅ Нормализация — работает для всех компонентов
+    const normalizedProduct = {
+      ...product,
+      name: product.name || product.title,
+      img: product.img || product.image || product.photo,
+    }
+
     setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id)
+      const existing = prev.find(item => item.id === normalizedProduct.id)
       if (existing) {
         return prev.map(item =>
-          item.id === product.id
+          item.id === normalizedProduct.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       }
-      return [...prev, { ...product, quantity: 1 }]
+      return [...prev, { ...normalizedProduct, quantity: 1 }]
     })
   }
 
-  const removeFromCart = (id) => setCartItems(prev => prev.filter(item => item.id !== id))
+  const removeFromCart = (id) =>
+    setCartItems(prev => prev.filter(item => item.id !== id))
 
   const increaseQty = (id) => {
     setCartItems(prev =>
-      prev.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item)
+      prev.map(item =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+      )
     )
   }
 
