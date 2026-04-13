@@ -7,9 +7,7 @@ import FloatingButtons from './components/FloatingButtons'
 import AIWelcome from './components/AIWelcome'
 import CartDrawer from './components/CartDrawer'
 import AuthModal from './components/AuthModal'
-import RoqedPage from './pages/digital/RoqedPage'
-import StemPlatformPage from './pages/digital/StemPlatformPage'
-import Kuhnya from './pages/categories/Kuhnya'
+
 // Страницы
 import FirstPage from './pages/FirstPage'
 import SecondPage from './pages/SecondPage'
@@ -22,6 +20,10 @@ import FavoritesPage from './pages/FavoritesPage'
 import ProfilePage from './pages/ProfilePage'
 import DigitalPage from './pages/digital/DigitalPage'
 import ProductDetail from './pages/ProductDetail'
+
+// Цифровые продукты
+import RoqedPage from './pages/digital/RoqedPage'
+import StemPlatformPage from './pages/digital/StemPlatformPage'
 
 // Категории мебели
 import Divany from './pages/categories/Divany'
@@ -36,11 +38,16 @@ import Barnye from './pages/categories/Barnye'
 import Shkafy from './pages/categories/Shkafy'
 import Vstroenye from './pages/categories/Vstroenye'
 import Standartnye from './pages/categories/Standartnye'
+import Stoly from './pages/categories/Stoly'
+import Party from './pages/categories/Party'
+import Reception from './pages/categories/Reception'
+import SpezStolyTecher from './pages/categories/SpezStolyTecher'
+import Kuhnya from './pages/categories/Kuhnya'
 
 // Оборудование
 import Ulab from './pages/equipment/Ulab'
 import Labdisc from './pages/equipment/Labdisc'
-import Party from './pages/categories/Party'
+
 // Декор
 import Gos from './pages/decor/Gos'
 import Panels3D from './pages/decor/Panels3D'
@@ -49,7 +56,7 @@ import Peregorodki from './pages/decor/Peregorodki'
 import Shtory from './pages/decor/Shtory'
 import Rasteniya from './pages/decor/Rasteniya'
 import Doski from './pages/decor/Doski'
-import Reception from './pages/categories/Reception'
+
 // Электротехника
 import InteractivePanels from './pages/electro/InteractivePanels'
 import Computers from './pages/electro/Computers'
@@ -57,30 +64,14 @@ import InfoKiosk from './pages/electro/InfoKiosk'
 import Stanki from './pages/electro/Stanki'
 import Bytovaya from './pages/electro/Bytovaya'
 import Printers3D from './pages/electro/Printers3D'
-import Stoly from './pages/categories/Stoly'
-import SpezStolyTecher from './pages/categories/SpezStolyTecher'
-// ==========================================
-// 🚀 ОСНОВНОЙ КОМПОНЕНТ APP (без хуков контекста!)
-// ==========================================
+
 export default function App() {
   return (
     <>
-      {/* Навбар */}
       <Navbar />
-
-      {/* 
-        ✅ ВАЖНО: CartDrawer и AuthModal сами решают, 
-        показываться им или нет, через useCart() и useAuth() внутри себя.
-        App больше не вызывает эти хуки.
-      */}
-      
-      {/* Выдвижная корзина (сама проверит isOpen внутри) */}
       <CartDrawer />
-
-      {/* Модалка авторизации (сама проверит showModal внутри) */}
       <AuthModal />
 
-      {/* Маршруты */}
       <Routes>
         {/* Главные страницы */}
         <Route path="/" element={<FirstPage />} />
@@ -94,9 +85,11 @@ export default function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/digital" element={<DigitalPage />} />
         <Route path="/digital/stemplatform" element={<StemPlatformPage />} />
+        <Route path="/digital/roqed" element={<RoqedPage />} />
+
         {/* Страница товара */}
         <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/secondpage/stoly/reception" element={<Reception />} />
+
         {/* Категории мебели */}
         <Route path="/secondpage/divany" element={<Divany />} />
         <Route path="/secondpage/kreslo" element={<Kreslo />} />
@@ -110,12 +103,16 @@ export default function App() {
         <Route path="/secondpage/shkafy" element={<Shkafy />} />
         <Route path="/secondpage/shkafy/vstroenye" element={<Vstroenye />} />
         <Route path="/secondpage/shkafy/standartnye" element={<Standartnye />} />
+        <Route path="/secondpage/stoly" element={<Stoly />} />
         <Route path="/secondpage/stoly/party" element={<Party />} />
+        <Route path="/secondpage/stoly/reception" element={<Reception />} />
+        <Route path="/secondpage/stoly/spets-teacher" element={<SpezStolyTecher />} />
         <Route path="/secondpage/kuhnya" element={<Kuhnya />} />
+
         {/* Оборудование */}
         <Route path="/equipment/ulab" element={<Ulab />} />
         <Route path="/equipment/labdisc" element={<Labdisc />} />
-        <Route path="/digital/roqed" element={<RoqedPage />} />
+
         {/* Декор */}
         <Route path="/decor/gos" element={<Gos />} />
         <Route path="/decor/3dpanels" element={<Panels3D />} />
@@ -124,7 +121,7 @@ export default function App() {
         <Route path="/decor/shtory" element={<Shtory />} />
         <Route path="/decor/rasteniya" element={<Rasteniya />} />
         <Route path="/decor/doski" element={<Doski />} />
-        <Route path="/secondpage/stoly" element={<Stoly />} />
+
         {/* Электротехника */}
         <Route path="/electro/interactive" element={<InteractivePanels />} />
         <Route path="/electro/computers" element={<Computers />} />
@@ -132,16 +129,10 @@ export default function App() {
         <Route path="/electro/stanki" element={<Stanki />} />
         <Route path="/electro/bytovaya" element={<Bytovaya />} />
         <Route path="/electro/printers3d" element={<Printers3D />} />
-        <Route path="/secondpage/stoly/spets-teacher" element={<SpezStolyTecher />} />
       </Routes>
 
-      {/* Футер */}
       <Footer />
-
-      {/* Плавающие кнопки связи */}
       <FloatingButtons />
-
-      {/* AI-приветствие (локальный стейт, не зависит от контекста) */}
       <AIWelcome />
     </>
   )
