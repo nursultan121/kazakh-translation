@@ -1,16 +1,19 @@
 import { Link } from 'react-router-dom'
+import { useLang } from '../../i18n/LanguageContext'
 import './Category.css'
 import './Stulya.css'
 
-const subcategories = [
-  { title: 'ВСТРОЕННЫЕ ШКАФЫ',   img: '/img/pagesecond/shkafy/vstroenye.png',   path: '/secondpage/shkafy/vstroenye' },
-  { title: 'СТАНДАРТНЫЕ ШКАФЫ',  img: '/img/pagesecond/shkafy/standartnye.png', path: '/secondpage/shkafy/standartnye' },
-]
-
 export default function Shkafy() {
+  const { lang } = useLang()
+  const isKz = lang === 'kz'
+  const subcategories = [
+    { title: isKz ? 'КІРІКТІРМЕ ШКАФТАР' : 'ВСТРОЕННЫЕ ШКАФЫ', img: '/img/pagesecond/shkafy/vstroenye.png', path: '/secondpage/shkafy/vstroenye' },
+    { title: isKz ? 'СТАНДАРТ ШКАФТАР' : 'СТАНДАРТНЫЕ ШКАФЫ', img: '/img/pagesecond/shkafy/standartnye.png', path: '/secondpage/shkafy/standartnye' },
+  ]
+
   return (
     <div className="page">
-      <div className="breadcrumb">МЕБЕЛЬ / ШКАФЫ</div>
+      <div className="breadcrumb">{isKz ? 'ЖИҺАЗ / ШКАФТАР' : 'МЕБЕЛЬ / ШКАФЫ'}</div>
       <main className="stulya-grid">
         {subcategories.map((cat, i) => (
           <Link key={i} to={cat.path} className="stulya-card">
@@ -29,8 +32,8 @@ export default function Shkafy() {
               className="stulya-card__soon"
               style={{ display: cat.img ? 'none' : 'flex' }}
             >
-              <span className="stulya-card__soon-badge">СКОРО</span>
-              <span className="stulya-card__soon-text">СКОРО</span>
+              <span className="stulya-card__soon-badge">{isKz ? 'ЖАҚЫНДА' : 'СКОРО'}</span>
+              <span className="stulya-card__soon-text">{isKz ? 'ЖАҚЫНДА' : 'СКОРО'}</span>
             </div>
             <span className="stulya-card__title">{cat.title}</span>
           </Link>

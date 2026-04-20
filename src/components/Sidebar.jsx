@@ -1,72 +1,73 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useLang } from '../i18n/LanguageContext'
 import './Sidebar.css'
 
 const menuItems = [
   {
-    label: 'дизайн интерьера',
+    label: 'sidebar_design',
     links: [
-      { text: 'пакеты дизайна',       path: '/' },
-      { text: 'индивидуальный проект', path: '/' },
+      { text: 'sidebar_design_packages', path: '/' },
+      { text: 'sidebar_design_individual', path: '/' },
     ]
   },
   {
-    label: 'мебель',
+    label: 'sidebar_furniture',
     links: [
-      { text: 'диваны',   path: '/secondpage/divany' },
-      { text: 'кресло',   path: '/secondpage/kreslo' },
-      { text: 'кухня',    path: '/secondpage' },
-      { text: 'пуфы',     path: '/secondpage/pufy' },
-      { text: 'стеллажи', path: '/secondpage/stellazhi' },
-      { text: 'столы',    path: '/secondpage' },
-      { text: 'стулья',   path: '/secondpage/stulya' },
-      { text: 'тумбы',    path: '/secondpage/tumby' },
-      { text: 'шкафы',    path: '/secondpage/shkafy' },
+      { text: 'sidebar_furniture_divany', path: '/secondpage/divany' },
+      { text: 'sidebar_furniture_kreslo', path: '/secondpage/kreslo' },
+      { text: 'sidebar_furniture_kuhnya', path: '/secondpage' },
+      { text: 'sidebar_furniture_pufy', path: '/secondpage/pufy' },
+      { text: 'sidebar_furniture_stellazhi', path: '/secondpage/stellazhi' },
+      { text: 'sidebar_furniture_stoly', path: '/secondpage' },
+      { text: 'sidebar_furniture_stulya', path: '/secondpage/stulya' },
+      { text: 'sidebar_furniture_tumby', path: '/secondpage/tumby' },
+      { text: 'sidebar_furniture_shkafy', path: '/secondpage/shkafy' },
     ]
   },
   {
-    label: 'электротехника',
+    label: 'sidebar_electro',
     links: [
-      { text: 'интерактивные панели', path: '/electro/interactive' },
-      { text: 'компьютеры',          path: '/electro/computers' },
-      { text: 'инфо-киоск',          path: '/electro/infokiosk' },
-      { text: 'станки',              path: '/electro/stanki' },
-      { text: 'бытовая техника',     path: '/electro/bytovaya' },
-      { text: '3D принтеры',         path: '/electro/printers3d' },
+      { text: 'sidebar_electro_panels', path: '/electro/interactive' },
+      { text: 'sidebar_electro_computers', path: '/electro/computers' },
+      { text: 'sidebar_electro_infokiosk', path: '/electro/infokiosk' },
+      { text: 'sidebar_electro_stanki', path: '/electro/stanki' },
+      { text: 'sidebar_electro_bytovaya', path: '/electro/bytovaya' },
+      { text: 'sidebar_electro_printers', path: '/electro/printers3d' },
     ]
   },
   {
-    label: 'декор',
+    label: 'sidebar_decor',
     links: [
-      { text: 'гос. символика', path: '/decor/gos' },
-      { text: '3D панели',      path: '/decor/3dpanels' },
-      { text: 'освещение',      path: '/decor/lighting' },
-      { text: 'перегородки',    path: '/decor/peregorodki' },
-      { text: 'шторы',          path: '/decor/shtory' },
-      { text: 'растения',       path: '/decor/rasteniya' },
-      { text: 'доски',          path: '/decor/doski' },
+      { text: 'sidebar_decor_gos', path: '/decor/gos' },
+      { text: 'sidebar_decor_panels', path: '/decor/3dpanels' },
+      { text: 'sidebar_decor_lighting', path: '/decor/lighting' },
+      { text: 'sidebar_decor_peregorodki', path: '/decor/peregorodki' },
+      { text: 'sidebar_decor_shtory', path: '/decor/shtory' },
+      { text: 'sidebar_decor_rasteniya', path: '/decor/rasteniya' },
+      { text: 'sidebar_decor_doski', path: '/decor/doski' },
     ]
   },
   {
-    label: 'цифровые продукты',
+    label: 'sidebar_digital',
     links: [
-      { text: 'Roqed Science', path: '#' },
-      { text: 'STEM Platform', path: '#' },
-      { text: 'пособия',       path: '#' },
-      { text: 'инфо. стенды',  path: '#' },
+      { text: 'sidebar_digital_roqed', path: '#' },
+      { text: 'sidebar_digital_platform', path: '#' },
+      { text: 'sidebar_digital_posobiya', path: '#' },
+      { text: 'sidebar_digital_stendy', path: '#' },
     ]
   },
   {
-    label: 'оборудование',
+    label: 'sidebar_equipment',
     links: [
-      { text: 'ULabs',      path: '/equipment/ulab' },
-      { text: 'LabDisc',    path: '/equipment/labdisc' },
-      { text: 'Lego Spike', path: '#' },
-      { text: 'Arduino',    path: '#' },
+      { text: 'sidebar_equipment_ulabs', path: '/equipment/ulab' },
+      { text: 'sidebar_equipment_labdisc', path: '/equipment/labdisc' },
+      { text: 'sidebar_equipment_spike', path: '#' },
+      { text: 'sidebar_equipment_arduino', path: '#' },
     ]
   },
   {
-    label: 'канаты',
+    label: 'sidebar_kanaty',
     links: []
   },
 ]
@@ -74,6 +75,7 @@ const menuItems = [
 export default function Sidebar({ isOpen, onClose }) {
   const [openIndex, setOpenIndex] = useState(null)
   const location = useLocation()
+  const { t } = useLang()
 
   const toggle = (i) => {
     if (menuItems[i].links.length === 0) return
@@ -86,7 +88,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
       <nav className={`menu-sidebar ${isOpen ? 'active' : ''}`}>
         <button className="menu-close" onClick={onClose}>✕</button>
-        <h2 className="menu-title">МЕНЮ</h2>
+        <h2 className="menu-title">{t.menu_title}</h2>
 
         <div className="accordion">
           {menuItems.map((item, i) => (
@@ -95,7 +97,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 className="accordion-header"
                 onClick={() => toggle(i)}
               >
-                <span>{item.label}</span>
+                <span>{t[item.label]}</span>
                 {item.links.length > 0 && (
                   <span className="accordion-arrow">V</span>
                 )}
@@ -111,7 +113,7 @@ export default function Sidebar({ isOpen, onClose }) {
                           className={`accordion-link ${location.pathname === link.path ? 'accordion-link--active' : ''}`}
                           onClick={onClose}
                         >
-                          {link.text}
+                          {t[link.text]}
                         </Link>
                       </li>
                     ))}

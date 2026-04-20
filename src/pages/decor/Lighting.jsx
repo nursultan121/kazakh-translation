@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useLang } from '../../i18n/LanguageContext'
 import './Lighting.css'
 
 const products = [
@@ -23,19 +24,21 @@ const products = [
 const telegramBase = 'https://t.me/stem_academia_bot?text='
 
 export default function Lighting() {
+  const { t, lang } = useLang()
+  const isKz = lang === 'kz'
   return (
     <div className="lighting-page">
 
       <div className="lighting-breadcrumb">
-        <Link to="/" className="breadcrumb-link">Главная</Link>
+        <Link to="/" className="breadcrumb-link">{t.home}</Link>
         <span> / </span>
-        <Link to="/decor" className="breadcrumb-link">Декор</Link>
+        <Link to="/decor" className="breadcrumb-link">{t.decor}</Link>
         <span> / </span>
-        <span>Освещение</span>
+        <span>{t.decor_lighting}</span>
       </div>
 
       <h1 className="lighting-title">
-        Освещение <span>{products.length} товаров</span>
+        {t.decor_lighting} <span>{products.length} {isKz ? 'тауар' : 'товаров'}</span>
       </h1>
 
       <div className="lighting-grid">
@@ -50,22 +53,22 @@ export default function Lighting() {
               <h2 className="light-card__title">{p.title}</h2>
 
               <div className="light-card__row">
-                <span className="light-card__label">Размеры:</span>
+                <span className="light-card__label">{t.size_label}:</span>
                 <span className="light-card__value">{p.size}</span>
               </div>
 
               <div className="light-card__row">
-                <span className="light-card__label">Артикул:</span>
+                <span className="light-card__label">{t.article_label}:</span>
                 <span className="light-card__value">{p.article}</span>
               </div>
 
               <a
-                href={`${telegramBase}${encodeURIComponent(`Здравствуйте! Интересует: ${p.title}, Артикул: ${p.article}`)}`}
+                href={`${telegramBase}${encodeURIComponent(`${t.inquiry_message_prefix} ${p.title}, ${t.article_label}: ${p.article}`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="light-card__btn"
               >
-                Оставить заявку
+                {t.order_btn}
               </a>
             </div>
 

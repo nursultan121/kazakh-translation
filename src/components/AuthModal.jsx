@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useLang } from '../i18n/LanguageContext'
 import './AuthModal.css'
 
 export default function AuthModal() {
   const { showModal, login, register, closeModal } = useAuth()
+  const { t } = useLang()
 
   const [mode, setMode] = useState('login')
   const [name, setName] = useState('')
@@ -68,21 +70,21 @@ export default function AuthModal() {
             className={`auth-box__tab ${mode === 'login' ? 'active' : ''}`}
             onClick={() => switchMode('login')}
             type="button"
-          >Войти</button>
+          >{t.auth_login_tab}</button>
           <button
             className={`auth-box__tab ${mode === 'register' ? 'active' : ''}`}
             onClick={() => switchMode('register')}
             type="button"
-          >Регистрация</button>
+          >{t.auth_register_tab}</button>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-box__form">
           {mode === 'register' && (
             <div className="auth-box__field">
-              <label>Имя</label>
+              <label>{t.auth_name_label || 'Имя'}</label>
               <input
                 type="text"
-                placeholder="Ваше имя"
+                placeholder={t.name_placeholder || 'Ваше имя'}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
@@ -93,7 +95,7 @@ export default function AuthModal() {
 
           {mode === 'register' && (
             <div className="auth-box__field">
-              <label>Номер телефона</label>
+              <label>{t.auth_phone_label || 'Номер телефона'}</label>
               <input
                 type="tel"
                 placeholder="+7 (777) 000-00-00"
@@ -105,7 +107,7 @@ export default function AuthModal() {
           )}
 
           <div className="auth-box__field">
-            <label>Email</label>
+            <label>{t.auth_email_label || 'Email'}</label>
             <input
               type="email"
               placeholder="example@mail.com"
@@ -117,7 +119,7 @@ export default function AuthModal() {
           </div>
 
           <div className="auth-box__field">
-            <label>Пароль</label>
+            <label>{t.auth_password_label}</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -132,15 +134,15 @@ export default function AuthModal() {
           {error && <div className="auth-box__error">⚠️ {error}</div>}
 
           <button type="submit" className="auth-box__submit" disabled={loading}>
-            {loading ? 'Загрузка...' : mode === 'login' ? 'Войти в аккаунт' : 'Создать аккаунт'}
+            {loading ? t.loading : mode === 'login' ? t.login_account : t.create_account}
           </button>
         </form>
 
         <p className="auth-box__switch">
           {mode === 'login' ? (
-            <>Нет аккаунта? <button type="button" onClick={() => switchMode('register')} className="link-btn">Зарегистрироваться</button></>
+            <>{t.auth_no_account} <button type="button" onClick={() => switchMode('register')} className="link-btn">{t.auth_register_button}</button></>
           ) : (
-            <>Уже есть аккаунт? <button type="button" onClick={() => switchMode('login')} className="link-btn">Войти</button></>
+            <>{t.auth_already_account} <button type="button" onClick={() => switchMode('login')} className="link-btn">{t.auth_login_tab}</button></>
           )}
         </p>
 
@@ -148,7 +150,7 @@ export default function AuthModal() {
           className="auth-box__close"
           onClick={(e) => { e.stopPropagation(); closeModal() }}
           type="button"
-          aria-label="Закрыть"
+          aria-label={t.auth_close}
           style={{
             position: 'absolute', top: '15px', right: '15px',
             background: 'none', border: 'none', fontSize: '28px',

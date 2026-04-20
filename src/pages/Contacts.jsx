@@ -1,6 +1,9 @@
+import { useLang } from '../i18n/LanguageContext.jsx'
 import './Contacts.css'
 
 export default function Contacts() {
+  const { t, lang } = useLang()
+
   return (
     <div className="contacts-page">
 
@@ -20,7 +23,7 @@ export default function Contacts() {
 
           {/* Телефон */}
           <div className="contacts-col">
-            <h3 className="contacts-col__title">Телефон</h3>
+            <h3 className="contacts-col__title">{t.contacts_phone}</h3>
             <a href="tel:+77778703206" className="contacts-col__text">+7 777 870 32 06</a>
             <a href="tel:+77776971423" className="contacts-col__text">+7 777 697 14 23</a>
             <a href="tel:+77000880132" className="contacts-col__text">+7 700 088 01 32</a>
@@ -30,8 +33,8 @@ export default function Contacts() {
 
           {/* Почта */}
           <div className="contacts-col">
-            <h3 className="contacts-col__title">Почта</h3>
-            <p className="contacts-col__desc">Для приобретения кабинетов и услуг, просим обращаться по указанным электронным почтам:</p>
+            <h3 className="contacts-col__title">{t.contacts_email}</h3>
+            <p className="contacts-col__desc">{t.contacts_email_desc}</p>
             <a href="mailto:sm1@stem-academia.com" className="contacts-col__text">sm1@stem-academia.com</a>
             <a href="mailto:sm2@stem-academia.com" className="contacts-col__text">sm2@stem-academia.com</a>
             <a href="mailto:sm3@stem-academia.com" className="contacts-col__text">sm3@stem-academia.com</a>
@@ -41,16 +44,20 @@ export default function Contacts() {
 
           {/* Поддержка */}
           <div className="contacts-col">
-            <h3 className="contacts-col__title">Поддержка</h3>
-            <p className="contacts-col__desc">Для обращений и предложений просим вас написать на указанный адрес электронной почты:</p>
+            <h3 className="contacts-col__title">{t.contacts_support}</h3>
+            <p className="contacts-col__desc">{t.contacts_support_desc}</p>
             <a href="mailto:info@stem-academia.com" className="contacts-col__text">info@stem-academia.com</a>
           </div>
 
           {/* Адрес */}
           <div className="contacts-col">
-            <h3 className="contacts-col__title">Адрес</h3>
-            <p className="contacts-col__text">г. Астана, Домалак Ана 26</p>
-            <p className="contacts-col__text">г. Алматы, проспект Аль - Фараби 77/2</p>
+            <h3 className="contacts-col__title">{t.contacts_address}</h3>
+            <p className="contacts-col__text">
+              {lang === 'kz' ? 'Астана қ., Домалақ Ана 26' : 'г. Астана, Домалак Ана 26'}
+            </p>
+            <p className="contacts-col__text">
+              {lang === 'kz' ? 'Алматы қ., Әл-Фараби даңғылы 77/2' : 'г. Алматы, проспект Аль - Фараби 77/2'}
+            </p>
           </div>
 
         </div>

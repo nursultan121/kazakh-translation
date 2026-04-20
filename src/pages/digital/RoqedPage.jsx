@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom'
+import { useLang } from '../../i18n/LanguageContext'
 import './RoqedPage.css'
 
 export default function RoqedPage() {
+  const { lang, t } = useLang()
+  const isKz = lang === 'kz'
+
   return (
     <div className="roqed-page">
       <div className="roqed-breadcrumb">
-        <Link to="/">Главная</Link> / <Link to="/digital">Цифровые продукты</Link> / ROQED Science
+        <Link to="/">{t.home}</Link> / <Link to="/digital">{t.nav_digital}</Link> / ROQED Science
       </div>
 
       <div className="roqed-layout">
@@ -16,55 +20,54 @@ export default function RoqedPage() {
             <div className="roqed-title-block">
               <h1>ROQED SINCE</h1>
               <p className="roqed-desc">
-                ROQED — глобальная EdTech-компания, которая создает захватывающую среду для увлекательного
-                преподавания физики, химии, биологии и наук о Земле на более чем 18 языках. Интерактивное,
-                простое в использовании образовательное программное обеспечение для изучения сотен подробных
-                3D-моделей и анимаций по естественным наукам.
+                {isKz
+                  ? 'ROQED — 18-ден астам тілде физика, химия, биология және жер туралы ғылымдарды оқытуға арналған интерактивті білім беру ортасын жасайтын халықаралық EdTech компаниясы. Жүздеген 3D-модельдер мен анимацияларды зерделеуге арналған қолдануға ыңғайлы бағдарлама.'
+                  : 'ROQED — глобальная EdTech-компания, которая создает захватывающую среду для увлекательного преподавания физики, химии, биологии и наук о Земле на более чем 18 языках. Интерактивное, простое в использовании образовательное программное обеспечение для изучения сотен подробных 3D-моделей и анимаций по естественным наукам.'}
               </p>
             </div>
 
             <div className="roqed-licenses">
-              <h2>ТИПЫ ЛИЦЕНЗИЙ</h2>
+              <h2>{isKz ? 'ЛИЦЕНЗИЯ ТҮРЛЕРІ' : 'ТИПЫ ЛИЦЕНЗИЙ'}</h2>
               <div className="roqed-licenses-grid">
 
                 {/* Студентам */}
                 <div className="roqed-license-col">
-                  <h3>Студентам</h3>
+                  <h3>{isKz ? 'Студенттерге' : 'Студентам'}</h3>
                   <ul>
-                    <li className="no">Автономный доступ</li>
-                    <li className="yes">Максимальное разрешение экрана 1280 * 720</li>
-                    <li className="yes">Доступно только на Android</li>
-                    <li className="yes">Доступ ко всем курсам и моделям</li>
-                    <li className="yes">Стандартная подписка сроком на 1 год</li>
-                    <li className="no">в режиме "Слайды" для планирования уроков</li>
-                    <li className="no">Совместима с flat panel</li>
+                    <li className="no">{isKz ? 'Дербес қолжетімділік' : 'Автономный доступ'}</li>
+                    <li className="yes">{isKz ? 'Экранның ең жоғары ажыратымдылығы 1280 * 720' : 'Максимальное разрешение экрана 1280 * 720'}</li>
+                    <li className="yes">{isKz ? 'Тек Android-та қолжетімді' : 'Доступно только на Android'}</li>
+                    <li className="yes">{isKz ? 'Барлық курстар мен модельдерге қолжетімділік' : 'Доступ ко всем курсам и моделям'}</li>
+                    <li className="yes">{isKz ? '1 жылдық стандартты жазылым' : 'Стандартная подписка сроком на 1 год'}</li>
+                    <li className="no">{isKz ? 'Сабақты жоспарлауға арналған "Слайдтар" режимі' : 'в режиме "Слайды" для планирования уроков'}</li>
+                    <li className="no">{isKz ? 'Flat panel-пен үйлесімді' : 'Совместима с flat panel'}</li>
                   </ul>
                 </div>
 
                 {/* Учителям */}
                 <div className="roqed-license-col">
-                  <h3>Учителям</h3>
+                  <h3>{isKz ? 'Мұғалімдерге' : 'Учителям'}</h3>
                   <ul>
-                    <li className="yes">Автономный доступ</li>
-                    <li className="yes">Максимальное разрешение экрана не ограничено</li>
-                    <li className="yes">Доступно на Windows и Android</li>
-                    <li className="yes">Доступ ко всем курсам и моделям</li>
-                    <li className="yes">Стандартная подписка сроком на 1 год</li>
-                    <li className="yes">в режиме "Слайды" для планирования уроков</li>
-                    <li className="yes">Совместима с flat panel</li>
+                    <li className="yes">{isKz ? 'Дербес қолжетімділік' : 'Автономный доступ'}</li>
+                    <li className="yes">{isKz ? 'Экран ажыратымдылығы шектелмеген' : 'Максимальное разрешение экрана не ограничено'}</li>
+                    <li className="yes">{isKz ? 'Windows және Android-та қолжетімді' : 'Доступно на Windows и Android'}</li>
+                    <li className="yes">{isKz ? 'Барлық курстар мен модельдерге қолжетімділік' : 'Доступ ко всем курсам и моделям'}</li>
+                    <li className="yes">{isKz ? '1 жылдық стандартты жазылым' : 'Стандартная подписка сроком на 1 год'}</li>
+                    <li className="yes">{isKz ? 'Сабақты жоспарлауға арналған "Слайдтар" режимі' : 'в режиме "Слайды" для планирования уроков'}</li>
+                    <li className="yes">{isKz ? 'Flat panel-пен үйлесімді' : 'Совместима с flat panel'}</li>
                   </ul>
                 </div>
 
               </div>
             </div>
 
-            <div className="roqed-article">Артикул: S.Ee-PC.MB.AVT.Pro</div>
+            <div className="roqed-article">{t.article_label}: S.Ee-PC.MB.AVT.Pro</div>
           </div>
         </div>
 
         {/* ПРАВАЯ КОЛОНКА — технические требования */}
         <div className="roqed-right">
-          <h2 className="roqed-tech-title">ТЕХНИЧЕСКИЕ ТРЕБОВАНИЯ</h2>
+          <h2 className="roqed-tech-title">{isKz ? 'ТЕХНИКАЛЫҚ ТАЛАПТАР' : 'ТЕХНИЧЕСКИЕ ТРЕБОВАНИЯ'}</h2>
           <div className="roqed-tech-grid">
 
             <div className="roqed-tech-card roqed-tech-windows">

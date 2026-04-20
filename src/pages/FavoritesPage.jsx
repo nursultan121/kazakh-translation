@@ -3,17 +3,19 @@ import { Link } from 'react-router-dom'
 import { useFavorites } from '../context/FavoritesContext'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import './FavoritesPage.css'
 
 // ─── Карточка товара ────────────────────────────────────────
 const FavCard = memo(function FavCard({ item }) {
   const { toggleFavorite } = useFavorites()
   const { addToCart } = useCart()
+  const { t } = useLang()
   const [added, setAdded] = useState(false)
   const [imgError, setImgError] = useState(false)
 
   const id = item.id || item.article || item.sku || Math.random()
-  const name = item.name || item.title || item.product_name || 'Без названия'
+  const name = item.name || item.title || item.product_name || t.no_name
   const price = item.price ?? item.cost ?? null
   const article = item.article || item.sku || ''
   
@@ -21,7 +23,7 @@ const FavCard = memo(function FavCard({ item }) {
     ? '/placeholder-product.svg' 
     : (item.imgs?.[0] || item.image || item.img || '/placeholder-product.svg')
 
-  const telegramMsg = `Здравствуйте! Интересует товар: ${name}`
+  const telegramMsg = `${t.inquiry_message_prefix} ${name}`
   const telegramLink = `https://t.me/stem_academia_bot?text=${encodeURIComponent(telegramMsg)}`
 
   const handleAddToCart = () => {
@@ -46,8 +48,8 @@ const FavCard = memo(function FavCard({ item }) {
       <button
         className="fav-card__remove"
         onClick={handleRemove}
-        title="Убрать из избранного"
-        aria-label={`Убрать ${name} из избранного`}
+        title={t.favorites_remove_title}
+        aria-label={`${t.favorites_remove_title} ${name}`}
         type="button"
       >
         ×
@@ -64,14 +66,14 @@ const FavCard = memo(function FavCard({ item }) {
         {imgError && (
           <div style={{color:'#999', textAlign:'center', position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center'}}>
             <span style={{fontSize:'40px'}}>📦</span>
-            <p>Нет фото</p>
+            <p>{t.favorites_no_photo}</p>
           </div>
         )}
       </div>
 
       <div className="fav-card__info">
         <h3 className="fav-card__name">{name}</h3>
-        {article && <p className="fav-card__article">Арт. {article}</p>}
+        {article && <p className="fav-card__article">{t.favorites_article} {article}</p>}
         
         {price ? (
           <p className="fav-card__price">
@@ -79,7 +81,7 @@ const FavCard = memo(function FavCard({ item }) {
           </p>
         ) : (
           <p className="fav-card__price fav-card__price--ask">
-            Цена по запросу
+            {t.favorites_price_ask}
           </p>
         )}
 
@@ -90,7 +92,7 @@ const FavCard = memo(function FavCard({ item }) {
             disabled={added}
             type="button"
           >
-            {added ? '✓ Добавлено!' : '🛒 В корзину'}
+            {added ? t.favorites_added : t.favorites_add_to_cart}
           </button>
 
           <a
@@ -99,7 +101,7 @@ const FavCard = memo(function FavCard({ item }) {
             rel="noreferrer noopener"
             className="fav-btn-order"
           >
-            📋 Оставить заявку
+            {t.favorites_order}
           </a>
         </div>
       </div>
@@ -110,19 +112,20 @@ const FavCard = memo(function FavCard({ item }) {
 export default function FavoritesPage() {
   const { favorites, isLoading } = useFavorites()
   const { user, setShowModal } = useAuth()
+  const { t } = useLang()
 
   if (isLoading) {
-    return <div className="fav-page"><p style={{textAlign:'center', paddingTop:'100px'}}>Загрузка...</p></div>
+    return <div className="fav-page"><p style={{textAlign:'center', paddingTop:'100px'}}>{t.favorites_loading}</p></div>
   }
 
   if (!user) {
     return (
       <div className="fav-empty">
         <span style={{fontSize: '50px', display:'block', marginBottom:'10px'}}>🔒</span>
-        <h2>Войдите в аккаунт</h2>
-        <p>Чтобы сохранять товары, нужно авторизоваться</p>
+        <h2>{t.favorites_login_title}</h2>
+        <p>{t.favorites_login_desc}</p>
         <button onClick={() => setShowModal(true)} className="fav-login-btn">
-          Войти / Зарегистрироваться
+          {t.favorites_login_btn}
         </button>
       </div>
     )
@@ -132,9 +135,9 @@ export default function FavoritesPage() {
     return (
       <div className="fav-empty">
         <span style={{fontSize: '50px', display:'block', marginBottom:'10px'}}>♡</span>
-        <h2>Список пуст</h2>
-        <p>Нажмите ❤ на товаре, чтобы добавить его сюда</p>
-        <Link to="/catalog" className="fav-login-btn">Перейти в каталог</Link>
+        <h2>{t.favorites_empty_title}</h2>
+        <p>{t.favorites_empty_desc}</p>
+        <Link to="/catalog" className="fav-login-btn">{t.favorites_catalog_link}</Link>
       </div>
     )
   }
@@ -142,11 +145,11 @@ export default function FavoritesPage() {
   return (
     <main className="fav-page">
       <div className="fav-breadcrumb">
-        <Link to="/">Главная</Link> / <span>Избранное</span>
+        <Link to="/">{t.home}</Link> / <span>{t.favorite}</span>
       </div>
 
       <h1 className="fav-title">
-        Избранное <span>{favorites.length} товаров</span>
+        {t.favorites_title} <span>{favorites.length} {t.favorites_items}</span>
       </h1>
 
       <div className="fav-grid">

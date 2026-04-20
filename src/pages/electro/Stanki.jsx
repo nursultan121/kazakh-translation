@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useLang } from '../../i18n/LanguageContext'
 import './Stanki.css'
 
 const products = [
@@ -37,21 +38,23 @@ const products = [
 ]
 
 export default function Stanki() {
+  const { t, lang } = useLang()
+  const isKz = lang === 'kz'
   const telegramBase = 'https://t.me/stem_academia_bot?text='
 
   return (
     <div className="stanki-page">
 
       <div className="stanki-breadcrumb">
-        <Link to="/" className="breadcrumb-link">Главная</Link>
+        <Link to="/" className="breadcrumb-link">{t.home}</Link>
         <span> / </span>
-        <Link to="/electro" className="breadcrumb-link">Электротехника</Link>
+        <Link to="/electro" className="breadcrumb-link">{t.electro}</Link>
         <span> / </span>
-        <span>Станки</span>
+        <span>{t.electro_stanki}</span>
       </div>
 
       <h1 className="stanki-title">
-        Станки <span>{products.length} товара</span>
+        {t.electro_stanki} <span>{products.length} {isKz ? 'тауар' : 'товара'}</span>
       </h1>
 
       <div className="stanki-list">
@@ -67,7 +70,7 @@ export default function Stanki() {
               <h2 className="divan-card__title">{p.title}</h2>
 
               <div className="divan-card__section">
-                <span className="divan-card__label">Описание:</span>
+                <span className="divan-card__label">{t.product_description}:</span>
                 {p.description.map((d, i) => (
                   <p key={i} className="divan-card__desc">{d}</p>
                 ))}
@@ -77,7 +80,7 @@ export default function Stanki() {
                 <table className="divan-card__table">
                   <tbody>
                     <tr>
-                      <td>Артикул</td>
+                      <td>{t.article_label}</td>
                       <td>{p.article}</td>
                     </tr>
                   </tbody>
@@ -85,25 +88,25 @@ export default function Stanki() {
               </div>
 
               <div className="divan-card__delivery">
-                <span>🚚 Доставка по Казахстану</span>
-                <span>📍 Самовывоз: г. Астана, ул. Домалак-ана 26</span>
+                <span>🚚 {t.delivery}</span>
+                <span>📍 {t.pickup}</span>
               </div>
 
               <div className="divan-card__actions">
                 <a
-                  href={`${telegramBase}${encodeURIComponent(`Здравствуйте! Интересует: ${p.title}, Артикул: ${p.article}`)}`}
+                  href={`${telegramBase}${encodeURIComponent(`${t.inquiry_message_prefix} ${p.title}, ${t.article_label}: ${p.article}`)}`}
                   target="_blank"
                   rel="noreferrer"
                   className="btn-order"
                 >
-                  Оставить заявку
+                  {t.order_btn}
                 </a>
-                <button className="btn-favorite">❤ В избранное</button>
+                <button className="btn-favorite">❤ {t.favorite_add}</button>
               </div>
 
               <div className="divan-card__share">
-                <button>↗ Поделиться</button>
-                <button>⚖ Сравнить</button>
+                <button>↗ {t.share}</button>
+                <button>⚖ {t.compare}</button>
               </div>
             </div>
 

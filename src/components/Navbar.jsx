@@ -99,7 +99,7 @@ export default function Navbar() {
           {/* ✅ ИСПРАВЛЕНО: setIsOpen(!isOpen) позволяет и открывать, и закрывать */}
           <button
             className="nav-icon-btn nav-cart"
-            title="Корзина"
+            title={t.cart}
             onClick={() => setIsOpen(!isOpen)} 
             type="button"
           >
@@ -113,7 +113,7 @@ export default function Navbar() {
                 <span className="cart-badge">{totalCount}</span>
               )}
             </div>
-            <span>Корзина</span>
+            <span>{t.cart || 'Корзина'}</span>
           </button>
 
           {/* ВХОД / ЛИЧНЫЙ КАБИНЕТ */}
@@ -129,14 +129,14 @@ export default function Navbar() {
               <button 
                 className="nav-logout" 
                 onClick={(e) => { e.preventDefault(); logout() }} 
-                title="Выйти"
+                title={t.logout}
                 type="button"
               >✕</button>
             </div>
           ) : (
             <button
               className="nav-icon-btn nav-account"
-              title="Войти"
+              title={t.login}
               onClick={openModal}
               type="button"
             >
@@ -144,7 +144,7 @@ export default function Navbar() {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
-              <span>Войти</span>
+              <span>{t.login}</span>
             </button>
           )}
 

@@ -7,6 +7,7 @@ import './SearchPage.css'
 
 
 const ProductCard = ({ product }) => {
+  const { t, lang } = useLang()
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -20,7 +21,7 @@ const ProductCard = ({ product }) => {
       ref={ref}
       to={productLink}
       className={`search-card ${inView ? 'search-card--visible' : ''}`}
-      aria-label={`Перейти к товару: ${product.title}`}
+      aria-label={`${lang === 'kz' ? 'Тауарға өту' : 'Перейти к товару'}: ${product.title}`}
       role="listitem"
     >
       <div className="search-card__media">
@@ -30,7 +31,7 @@ const ProductCard = ({ product }) => {
           sizes="(max-width: 768px) 50vw, 33vw"
           loading="lazy"
           decoding="async"
-          alt={`Купить ${product.title?.toLowerCase()} в STEM Academia`}
+          alt={`${lang === 'kz' ? 'STEM Academia-да сатып алу' : 'Купить'} ${product.title?.toLowerCase()}`}
           className="search-card__img"
         />
         {product.badge && (
@@ -42,7 +43,7 @@ const ProductCard = ({ product }) => {
 
       <div className="search-card__info">
         <h3 className="search-card__title">{product.title}</h3>
-        <p className="search-card__article">Арт: {product.article}</p>
+        <p className="search-card__article">{t.favorites_article} {product.article}</p>
         {product.description && <p className="search-card__desc">{product.description}</p>}
       </div>
     </Link>
@@ -106,24 +107,24 @@ export default function SearchPage() {
       <nav className="search-breadcrumb" aria-label="Breadcrumb">
         <Link to="/" className="breadcrumb-link">{t.home}</Link>
         <span className="separator" aria-hidden="true"> / </span>
-        <span className="current">Поиск: "{query}"</span>
+        <span className="current">{`${t.search} "${query}"`}</span>
       </nav>
 
       <h1 className="search-title">
-        Результаты поиска: <span>"{query}"</span>
+        {`${t.found}:`} <span>"{query}"</span>
       </h1>
 
       {loading ? (
-        <p className="search-loading">Загрузка товаров...</p>
+        <p className="search-loading">{t.loading}</p>
       ) : results.length === 0 ? (
         <div className="search-empty">
-          <p>😔 Ничего не найдено по запросу "{query}"</p>
-          <Link to="/" className="btn-back">← Вернуться на главную</Link>
+          <p>😔 {t.products_not_found}: "{query}"</p>
+          <Link to="/" className="btn-back">← {t.home}</Link>
         </div>
       ) : (
         <>
           <p className="search-count">
-            Найдено: <strong>{results.length}</strong> {results.length === 1 ? 'товар' : 'товаров'}
+            {t.found}: <strong>{results.length}</strong> {results.length === 1 ? (t.favorites_items === 'тауар' ? 'тауар' : 'товар') : t.favorites_items}
           </p>
 
           <div className="search-grid" role="list">

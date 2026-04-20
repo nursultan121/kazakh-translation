@@ -1,6 +1,3 @@
-import ProductList from '../../components/ProductList'
-import './Category.css'
-
 const products = Array.from({ length: 6 }, (_, i) => ({
   id: i + 1,
   title: `ШКОЛЬНЫЙ СТУЛ ${i + 1}`,

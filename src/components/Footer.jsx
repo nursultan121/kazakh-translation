@@ -4,7 +4,7 @@ import { useLang } from '../i18n/LanguageContext'
 import './Footer.css'
 
 export default function Footer() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   return (
     <footer className="footer">
       <div className="footer-main">
@@ -89,7 +89,7 @@ export default function Footer() {
         <div className="footer-col">
           <h4 className="footer-col__title">{t.nav_contacts}</h4>
           <ul className="footer-col__list footer-col__list--contacts">
-            <li>📍 г. Астана, ул. Домалак-ана 26</li>
+            <li>📍 {lang === 'kz' ? 'Астана қ., Домалақ-ана көшесі 26' : 'г. Астана, ул. Домалак-ана 26'}</li>
             <li>📞 <a href="tel:+77000000000">+7 (700) 000-00-00</a></li>
             <li>✉ <a href="mailto:info@stemacademia.kz">info@stemacademia.kz</a></li>
             <li>🕐 {t.footer_schedule}</li>

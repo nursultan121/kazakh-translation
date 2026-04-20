@@ -1,4 +1,7 @@
+import { useLang } from '../i18n/LanguageContext'
+
 export default function TelegramButton() {
+  const { t } = useLang()
   return (
     <a
       href="https://t.me/stem_academia_bot?start=question"
@@ -17,7 +20,7 @@ export default function TelegramButton() {
         fontSize: "15px"
       }}
     >
-      💬 Задать вопрос менеджеру
+      💬 {t.telegram_contact_manager}
     </a>
   );
 }

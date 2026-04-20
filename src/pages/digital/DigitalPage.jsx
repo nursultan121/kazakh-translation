@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useLang } from '../../i18n/LanguageContext'
 import './DigitalPage.css'
 
 const row1 = [
@@ -24,18 +25,34 @@ const row2 = [
 const allItems = [...row1, ...row2]
 
 export default function DigitalPage() {
+  const { lang, t } = useLang()
+  const isKz = lang === 'kz'
+  const row2Localized = row2.map((item) => ({
+    ...item,
+    title:
+      isKz && item.title === 'ИНФО СТЕНДЫ'
+        ? 'АҚПАРАТТЫҚ СТЕНДТЕР'
+        : item.title,
+    description:
+      isKz && item.title === 'ИНФО СТЕНДЫ'
+        ? 'Оқушылар мен мұғалімдерге арналған материалдарды заманауи түрде ұсынатын білім беру кеңістіктеріне арналған ақпараттық стендтер.'
+        : isKz && item.title === 'STEAM BOOK'
+          ? 'STEAM BOOK — цифрлық ресурстар, практикалық тапсырмалар және STEM бағдарламаларына арналған оқу материалдары бар интерактивті білім беру форматы.'
+          : item.description,
+  }))
+
   return (
     <div className="digital-page">
 
       <div className="digital-breadcrumb">
-        <Link to="/" className="breadcrumb-link">Главная</Link>
+        <Link to="/" className="breadcrumb-link">{t.home}</Link>
         <span> / </span>
-        <span>Цифровые продукты</span>
+        <span>{t.nav_digital}</span>
       </div>
 
       <div className="digital-header">
-        <h1 className="digital-header__title">Цифровые продукты</h1>
-        <span className="digital-header__count">Найдено {allItems.length} категории</span>
+        <h1 className="digital-header__title">{t.nav_digital}</h1>
+        <span className="digital-header__count">{t.found} {allItems.length} {t.categories}</span>
       </div>
 
       <main className="digital-main">
@@ -52,7 +69,7 @@ export default function DigitalPage() {
         </div>
 
         <div className="digital-row digital-row--2">
-          {row2.map((item, i) => (
+          {row2Localized.map((item, i) => (
             <Link key={i} to={item.path} className="digital-card digital-card--text">
               <div className="digital-card__content">
                 <span className="digital-card__title">{item.title}</span>

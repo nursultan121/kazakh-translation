@@ -4,7 +4,8 @@ import CategoryGrid from '../components/CategoryGrid'
 import { useLang } from '../i18n/LanguageContext'
 
 export default function FirstPage() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const isKz = lang === 'kz'
   
   return (
     <div className="page">
@@ -26,7 +27,7 @@ export default function FirstPage() {
               {t.pkg_s_items.map((item, i) => <li key={i}>{item}</li>)}
             </ul>
           </div>
-          <img src="/img/pagefirst/Слой1.png" alt="Стул" className="package__img" />
+          <img src="/img/pagefirst/Слой1.png" alt={isKz ? 'Орындық' : 'Стул'} className="package__img" />
           <div className="package__price">90 000 ₸</div>
         </div>
 
@@ -39,7 +40,7 @@ export default function FirstPage() {
               {t.pkg_m_items.map((item, i) => <li key={i}>{item}</li>)}
             </ul>
           </div>
-          <img src="/img/pagefirst/plant.png" alt="Растение" className="package__img" />
+          <img src="/img/pagefirst/plant.png" alt={isKz ? 'Өсімдік' : 'Растение'} className="package__img" />
           <div className="package__price">130 000 ₸</div>
         </div>
 
@@ -52,7 +53,7 @@ export default function FirstPage() {
               {t.pkg_l_items.map((item, i) => <li key={i}>{item}</li>)}
             </ul>
           </div>
-          <img src="/img/pagefirst/F5.png" alt="Кресло" className="package__img" />
+          <img src="/img/pagefirst/F5.png" alt={isKz ? 'Кресло' : 'Кресло'} className="package__img" />
           <div className="package__price">180 000 ₸</div>
         </div>
       </main>
@@ -65,14 +66,14 @@ export default function FirstPage() {
         <img src="/img/pagefirst/key1.png" alt="" className="dream__key dream__key--br" />
         
         <div className="dream__left">
-          <h2 className="dream__title">Инновационное решение для нашего будущего</h2>
+          <h2 className="dream__title">{isKz ? 'Болашағымызға арналған инновациялық шешім' : 'Инновационное решение для нашего будущего'}</h2>
           <p className="dream__desc">{t.dream_desc}</p>
           <a href="#" className="dream__btn">{t.dream_btn}</a>
           {/* TelegramButton удалён */}
         </div>
         
         <div className="dream__right">
-          <img src="/img/pagefirst/room.png" alt="Комната" className="dream__room" />
+          <img src="/img/pagefirst/room.png" alt={isKz ? 'Бөлме' : 'Комната'} className="dream__room" />
         </div>
       </section>
     </div>

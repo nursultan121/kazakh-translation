@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useLang } from '../../i18n/LanguageContext'
 import './Peregorodki.css'
 
 const products = [
@@ -28,6 +29,7 @@ const products = [
 const telegramBase = 'https://t.me/stem_academia_bot?text='
 
 function CardImage({ src, alt }) {
+  const { t } = useLang()
   const handleError = (e) => {
     e.target.style.display = 'none'
     e.target.nextSibling.style.display = 'flex'
@@ -41,26 +43,28 @@ function CardImage({ src, alt }) {
         onError={handleError}
       />
       <div className="perego-img-soon" style={{ display: 'none' }}>
-        <span className="perego-soon-badge">СКОРО</span>
-        <span className="perego-soon-text">СКОРО</span>
+        <span className="perego-soon-badge">{t.equipment_soon}</span>
+        <span className="perego-soon-text">{t.equipment_soon}</span>
       </div>
     </>
   )
 }
 
 export default function Peregorodki() {
+  const { t, lang } = useLang()
+  const isKz = lang === 'kz'
   return (
     <div className="peregorodki-page">
       <div className="peregorodki-breadcrumb">
-        <Link to="/" className="breadcrumb-link">Главная</Link>
+        <Link to="/" className="breadcrumb-link">{t.home}</Link>
         <span> / </span>
-        <Link to="/decor" className="breadcrumb-link">Декор</Link>
+        <Link to="/decor" className="breadcrumb-link">{t.decor}</Link>
         <span> / </span>
-        <span>Перегородки</span>
+        <span>{t.decor_peregorodki}</span>
       </div>
 
       <h1 className="peregorodki-title">
-        Перегородки <span>{products.length} товара</span>
+        {t.decor_peregorodki} <span>{products.length} {isKz ? 'тауар' : 'товара'}</span>
       </h1>
 
       <div className="peregorodki-list">
@@ -81,32 +85,32 @@ export default function Peregorodki() {
 
             <div className="peregorodki-card__info">
               <h2>{p.title}</h2>
-              <p className="peregorodki-card__desc-label">Описание:</p>
+              <p className="peregorodki-card__desc-label">{t.product_description}:</p>
               <p className="peregorodki-card__desc">{p.description}</p>
               <table className="peregorodki-card__table">
                 <tbody>
                   <tr>
-                    <td>Артикул</td>
+                    <td>{t.article_label}</td>
                     <td>{p.article}</td>
                   </tr>
                 </tbody>
               </table>
               <div className="peregorodki-card__delivery">
-                <span>🚚 Доставка по Казахстану</span>
-                <span>📍 Самовывоз: г. Астана, ул. Домалак-ана 26</span>
+                <span>🚚 {t.delivery}</span>
+                <span>📍 {t.pickup}</span>
               </div>
               <a
-                href={`${telegramBase}${encodeURIComponent(`Здравствуйте! Хочу узнать о товаре: ${p.title}, артикул: ${p.article}`)}`}
+                href={`${telegramBase}${encodeURIComponent(`${t.inquiry_message_prefix} ${p.title}, ${t.article_label}: ${p.article}`)}`}
                 className="btn-order-full"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                📝 Оставить заявку
+                📝 {t.order_btn}
               </a>
               <div className="peregorodki-card__share">
-                <button type="button">❤ В избранное</button>
-                <button type="button">↗ Поделиться</button>
-                <button type="button">⚖ Сравнить</button>
+                <button type="button">❤ {t.favorite_add}</button>
+                <button type="button">↗ {t.share}</button>
+                <button type="button">⚖ {t.compare}</button>
               </div>
             </div>
 

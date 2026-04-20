@@ -23,6 +23,8 @@ export default function ProductDetail() {
   const [formData, setFormData] = useState({ name: '', phone: '', comment: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
+  const [activeTab, setActiveTab] = useState('description')
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -32,8 +34,8 @@ export default function ProductDetail() {
         const url = `${API_BASE_URL}/api/products/${id}`
         const response = await fetch(url)
         if (!response.ok) {
-          if (response.status === 404) throw new Error('Товар не найден')
-          throw new Error(`Ошибка сервера: ${response.status}`)
+          if (response.status === 404) throw new Error(t.product_not_found_title)
+          throw new Error(`${t.error_occurred}: ${response.status}`)
         }
         const data = await response.json()
         setProduct(data)
@@ -44,7 +46,7 @@ export default function ProductDetail() {
       }
     }
     if (id) loadProduct()
-  }, [id])
+  }, [id, t.error_occurred, t.product_not_found_title])
 
   // ✅ Нормализуем объект — добавляем name = title для корзины
   const handleAddToCart = () => {
@@ -59,6 +61,7 @@ export default function ProductDetail() {
   const handleOpenModal = () => {
     setShowModal(true)
     setSubmitSuccess(false)
+    setSubmitError(null)
     setFormData({ name: '', phone: '', comment: '' })
   }
 
@@ -72,6 +75,7 @@ export default function ProductDetail() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
+    setSubmitError(null)
     try {
       const applicationData = {
         name: formData.name,
@@ -86,7 +90,7 @@ export default function ProductDetail() {
       setTimeout(() => setShowModal(false), 2000)
     } catch (err) {
       console.error('Ошибка отправки заявки:', err)
-      alert('Произошла ошибка при отправке заявки. Попробуйте снова.')
+      setSubmitError(t.product_request_error)
     } finally {
       setSubmitting(false)
     }
@@ -96,7 +100,7 @@ export default function ProductDetail() {
     if (!cat) return null
     if (typeof cat === 'string') return cat
     if (typeof cat === 'object') {
-      return cat.title_ru || cat.title_kz || cat.name || cat.title || 'Категория'
+      return cat.title_ru || cat.title_kz || cat.name || cat.title || t.product_category_default
     }
     return String(cat)
   }
@@ -106,7 +110,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="product-loading">
-        <div className="loading-spinner">Загрузка товара...</div>
+        <div className="loading-spinner">{t.product_loading}</div>
       </div>
     )
   }
@@ -114,9 +118,9 @@ export default function ProductDetail() {
   if (error) {
     return (
       <div className="product-error">
-        <h2>⚠️ Не удалось загрузить товар</h2>
+        <h2>{t.product_error_title}</h2>
         <p className="error-message">{error}</p>
-        <Link to="/search" className="btn-back">← К поиску</Link>
+        <Link to="/search" className="btn-back">{t.product_error_back}</Link>
       </div>
     )
   }
@@ -124,8 +128,8 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="product-not-found">
-        <h2>😔 Товар не найден</h2>
-        <Link to="/search" className="btn-back">← Вернуться к поиску</Link>
+        <h2>{t.product_not_found_title}</h2>
+        <Link to="/search" className="btn-back">{t.product_not_found_back}</Link>
       </div>
     )
   }
@@ -136,7 +140,7 @@ export default function ProductDetail() {
         <nav className="product-breadcrumb">
           <Link to="/" className="breadcrumb-link">{t.home}</Link>
           <span className="separator"> / </span>
-          <Link to="/secondpage" className="breadcrumb-link">Мебель</Link>
+          <Link to="/secondpage" className="breadcrumb-link">{t.product_breadcrumb_furniture}</Link>
           {categoryName && (
             <>
               <span className="separator"> / </span>
@@ -166,7 +170,7 @@ export default function ProductDetail() {
 
             {product.article && (
               <div className="product-article">
-                <span>Артикул:</span> <strong>{product.article}</strong>
+                <span>{t.article_label}:</span> <strong>{product.article}</strong>
               </div>
             )}
 
@@ -184,19 +188,58 @@ export default function ProductDetail() {
             )}
 
             <div className="product-delivery">
-              <div className="delivery-item">🚚 Доставка по Казахстану</div>
-              <div className="delivery-item">📍 Самовывоз: Астана, Домалак-ана 26</div>
+              <div className="delivery-item">🚚 {t.delivery}</div>
+              <div className="delivery-item">📍 {t.pickup}</div>
             </div>
 
             <div className="product-actions">
               <button className="btn-add-to-cart" onClick={handleAddToCart}>
-                🛒 В корзину
+                {t.product_add_to_cart}
               </button>
             </div>
 
             <button className="btn-application" onClick={handleOpenModal}>
-              📝 Оставить заявку
+              {t.product_request}
             </button>
+          </div>
+        </div>
+
+        <div className="product-tabs">
+          <div className="tabs-header">
+            <button 
+              className={`tab-button ${activeTab === 'description' ? 'active' : ''}`}
+              onClick={() => setActiveTab('description')}
+            >
+              {t.product_description}
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'characteristics' ? 'active' : ''}`}
+              onClick={() => setActiveTab('characteristics')}
+            >
+              {t.product_characteristics}
+            </button>
+          </div>
+
+          <div className="tabs-content">
+            {activeTab === 'description' && (
+              <div className="tab-panel">
+                {product.description ? (
+                  <p>{product.description}</p>
+                ) : (
+                  <p className="no-content">{t.product_no_description}</p>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'characteristics' && (
+              <div className="tab-panel">
+                {product.characteristics ? (
+                  <div dangerouslySetInnerHTML={{ __html: product.characteristics }} />
+                ) : (
+                  <p className="no-content">{t.product_no_characteristics}</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -206,22 +249,27 @@ export default function ProductDetail() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={handleCloseModal}>×</button>
 
-            <h2 className="modal-title">📝 Оставить заявку</h2>
+            <h2 className="modal-title">{t.product_request_title}</h2>
             <p className="modal-subtitle">
-              Товар: <strong>{product.title}</strong><br />
-              Артикул: {product.article}
+              {t.product_label} <strong>{product.title}</strong><br />
+              {t.article_label}: {product.article}
             </p>
 
             {submitSuccess ? (
               <div className="success-message">
                 <div className="success-icon">✅</div>
-                <h3>Заявка отправлена!</h3>
-                <p>Наш менеджер свяжется с вами в ближайшее время.</p>
+                <h3>{t.product_request_success}</h3>
+                <p>{t.product_request_success_desc}</p>
+              </div>
+            ) : submitError ? (
+              <div className="error-message">
+                <div className="error-icon">⚠️</div>
+                <p>{submitError}</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="application-form">
                 <div className="form-group">
-                  <label htmlFor="name">Ваше имя *</label>
+                  <label htmlFor="name">{t.cart_name_label}</label>
                   <input
                     type="text"
                     id="name"
@@ -229,12 +277,12 @@ export default function ProductDetail() {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    placeholder="Иван Иванов"
+                    placeholder={t.cart_placeholder_name}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="phone">Телефон *</label>
+                  <label htmlFor="phone">{t.cart_phone_label}</label>
                   <input
                     type="tel"
                     id="phone"
@@ -242,28 +290,28 @@ export default function ProductDetail() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
-                    placeholder="+7 (___) ___-__-__"
+                    placeholder={t.cart_placeholder_phone}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="comment">Комментарий</label>
+                  <label htmlFor="comment">{t.cart_comment_label}</label>
                   <textarea
                     id="comment"
                     name="comment"
                     value={formData.comment}
                     onChange={handleInputChange}
-                    placeholder="Дополнительная информация (необязательно)"
+                    placeholder={t.cart_placeholder_comment}
                     rows="3"
                   />
                 </div>
 
                 <button type="submit" className="btn-submit" disabled={submitting}>
-                  {submitting ? 'Отправка...' : 'Отправить заявку'}
+                  {submitting ? t.sending : t.send_request}
                 </button>
 
                 <p className="form-note">
-                  🔒 Ваши данные защищены. Мы не передаём их третьим лицам.
+                  {t.data_protected}
                 </p>
               </form>
             )}

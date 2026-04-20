@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import './ProfilePage.css'
 
 export default function ProfilePage() {
   const { user, logout, setShowModal } = useAuth()
   const { cartItems, totalPrice } = useCart()
   const { favorites } = useFavorites()
+  const { t, lang } = useLang()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('info')
 
@@ -16,10 +18,10 @@ export default function ProfilePage() {
     return (
       <div className="profile-empty">
         <span>🔒</span>
-        <h2>Войдите в аккаунт</h2>
-        <p>Чтобы открыть личный кабинет, нужно авторизоваться</p>
+        <h2>{t.profile_login_title}</h2>
+        <p>{t.profile_login_desc}</p>
         <button onClick={() => setShowModal(true)} className="profile-login-btn">
-          Войти / Зарегистрироваться
+          {t.profile_login_btn}
         </button>
       </div>
     )
@@ -43,7 +45,7 @@ export default function ProfilePage() {
           <p className="profile-header__email">{user.email}</p>
         </div>
         <button className="profile-logout" onClick={handleLogout}>
-          Выйти
+          {t.profile_logout}
         </button>
       </div>
 
@@ -51,15 +53,15 @@ export default function ProfilePage() {
       <div className="profile-stats">
         <div className="profile-stat">
           <span className="profile-stat__num">{cartItems.length}</span>
-          <span className="profile-stat__label">В корзине</span>
+          <span className="profile-stat__label">{t.cart}</span>
         </div>
         <div className="profile-stat">
           <span className="profile-stat__num">{favorites.length}</span>
-          <span className="profile-stat__label">В избранном</span>
+          <span className="profile-stat__label">{t.favorite}</span>
         </div>
         <div className="profile-stat">
           <span className="profile-stat__num">{totalPrice > 0 ? totalPrice.toLocaleString() + ' ₸' : '0 ₸'}</span>
-          <span className="profile-stat__label">Сумма корзины</span>
+          <span className="profile-stat__label">{t.total_label}</span>
         </div>
       </div>
 
@@ -69,19 +71,19 @@ export default function ProfilePage() {
           className={`profile-tab ${activeTab === 'info' ? 'active' : ''}`}
           onClick={() => setActiveTab('info')}
         >
-          👤 Мои данные
+          {t.profile_tab_info}
         </button>
         <button
           className={`profile-tab ${activeTab === 'cart' ? 'active' : ''}`}
           onClick={() => setActiveTab('cart')}
         >
-          🛒 Корзина ({cartItems.length})
+          {t.profile_tab_cart} ({cartItems.length})
         </button>
         <button
           className={`profile-tab ${activeTab === 'favorites' ? 'active' : ''}`}
           onClick={() => setActiveTab('favorites')}
         >
-          ❤ Избранное ({favorites.length})
+          {t.profile_tab_favorites} ({favorites.length})
         </button>
       </div>
 
@@ -92,16 +94,16 @@ export default function ProfilePage() {
         {activeTab === 'info' && (
           <div className="profile-info">
             <div className="profile-info__row">
-              <span className="profile-info__label">Имя</span>
+              <span className="profile-info__label">{t.profile_info_name}</span>
               <span className="profile-info__value">{user.name}</span>
             </div>
             <div className="profile-info__row">
-              <span className="profile-info__label">Email</span>
+              <span className="profile-info__label">{t.profile_info_email}</span>
               <span className="profile-info__value">{user.email}</span>
             </div>
             <div className="profile-info__row">
-              <span className="profile-info__label">Город</span>
-              <span className="profile-info__value">Астана</span>
+              <span className="profile-info__label">{t.profile_info_city}</span>
+              <span className="profile-info__value">{lang === 'kz' ? 'Астана' : 'Астана'}</span>
             </div>
           </div>
         )}
@@ -111,8 +113,8 @@ export default function ProfilePage() {
           <div className="profile-list">
             {cartItems.length === 0 ? (
               <div className="profile-empty-tab">
-                <p>Корзина пуста</p>
-                <Link to="/secondpage" className="profile-link-btn">Перейти в каталог</Link>
+                <p>{t.profile_cart_empty}</p>
+                <Link to="/secondpage" className="profile-link-btn">{t.profile_cart_goto_catalog}</Link>
               </div>
             ) : (
               <>
@@ -121,8 +123,8 @@ export default function ProfilePage() {
                     <img src={item.image} alt={item.name} className="profile-item__img" />
                     <div className="profile-item__info">
                       <p className="profile-item__name">{item.name}</p>
-                      {item.color && <p className="profile-item__color">Цвет: {item.color}</p>}
-                      <p className="profile-item__qty">Количество: {item.quantity}</p>
+                      {item.color && <p className="profile-item__color">{t.profile_cart_color} {item.color}</p>}
+                      <p className="profile-item__qty">{t.profile_cart_quantity} {item.quantity}</p>
                     </div>
                     <p className="profile-item__price">
                       {(item.price * item.quantity).toLocaleString()} ₸
@@ -130,7 +132,7 @@ export default function ProfilePage() {
                   </div>
                 ))}
                 <div className="profile-total">
-                  <span>Итого:</span>
+                  <span>{t.profile_cart_total}</span>
                   <strong>{totalPrice.toLocaleString()} ₸</strong>
                 </div>
               </>
@@ -143,8 +145,8 @@ export default function ProfilePage() {
           <div className="profile-list">
             {favorites.length === 0 ? (
               <div className="profile-empty-tab">
-                <p>Список избранного пуст</p>
-                <Link to="/secondpage" className="profile-link-btn">Перейти в каталог</Link>
+                <p>{t.profile_favorites_empty}</p>
+                <Link to="/secondpage" className="profile-link-btn">{t.favorites_catalog_link}</Link>
               </div>
             ) : (
               favorites.map(item => (
